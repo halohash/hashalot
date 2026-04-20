@@ -19674,7 +19674,7 @@
             this.Ve.np("video_like_value")
         };
         d.hn = function(a, b, c, e, f) {
-            this.cb() ? (this.Z.gG(c), this.G.Ac(pb) || (c = Gc(this.is, "[[Now Playing|Title for currently playing playlists.]]", H.An + "/icon-related.png", b.videoId), c.Hn(b))) : this.Ig() && (c = "RV" === b.eb ? Ec(this.is, "[[Related Videos|Title for playlist that shows videos related to the one currently is playing.]]", H.An + "/icon-related.png", b.videoId) : this.watchModel.Uj());
+            this.cb() ? (this.Z.gG(c), this.G.Ac(pb) || (c = Gc(this.is, "[[Now Playing|Title for currently playing playlists.]]", "icon-lozenge", b.videoId), c.Hn(b))) : this.Ig() && (c = "RV" === b.eb ? Ec(this.is, "[[Related Videos|Title for playlist that shows videos related to the one currently is playing.]]", "icon-related", b.videoId) : this.watchModel.Uj());
             this.M(!1);
             a = this.watchModel.Hg(b, c, e, f);
             this.scope.$emit("mdxPlaylistChange", a);
