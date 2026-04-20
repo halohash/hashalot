@@ -1,0 +1,245 @@
+{
+                "version": "1.0",
+                "encoding": "UTF-8",
+                "entry": {
+                    "xmlns": "http://www.w3.org/2005/Atom",
+                    "xmlns$gd": "https://web.archive.org/web/20150326103611/http://schemas.google.com/g/2005",
+                    "xmlns$yt": "https://web.archive.org/web/20150326103611/http://gdata.youtube.com/schemas/2007",
+                    "xmlns$media": "https://web.archive.org/web/20150326103611/http://search.yahoo.com/mrss/",
+                    "gd$etag": "W/\"A0cMRX47eCp7I2A9XRRUE0w.\"",
+                    "id": {
+                        "$t": "tag:youtube.com,2008:video:vdCY3QGoc8s"
+                    },
+                    "published": {
+                        "$t": "2012-03-31T11:29:11.000Z"
+                    },
+                    "updated": {
+                        "$t": "2015-03-25T21:31:24.000Z"
+                    },
+                    "category": [
+                        {
+                            "scheme": "https://web.archive.org/web/20150326103611/http://schemas.google.com/g/2005#kind",
+                            "term": "https://web.archive.org/web/20150326103611/http://gdata.youtube.com/schemas/2007#video",
+                            "label": "Film & Animation"
+                        }
+                    ],
+                    "title": {
+                        "$t": "Winx Club in Concerto - Un regno e una bambina"
+                    },
+                    "content": {
+                        "type": "application/x-shockwave-flash",
+                        "src": "https://web.archive.org/web/20150326103611/http://www.youtube.com/v/vdCY3QGoc8s?version=3&f=videos&app=youtube_gdata"
+                    },
+                    "link": [
+                        {
+                            "rel": "alternate",
+                            "type": "text/html",
+                            "href": "https://web.archive.org/web/20150326103611/http://www.youtube.com/watch?v=vdCY3QGoc8s&feature=youtube_gdata"
+                        },
+                        {
+                            "rel": "https://web.archive.org/web/20150326103611/http://gdata.youtube.com/schemas/2007#video.related",
+                            "type": "application/atom+xml",
+                            "href": "https://web.archive.org/web/20150326103611/http://gdata.youtube.com/feeds/api/videos/vdCY3QGoc8s/related?v=2"
+                        },
+                        {
+                            "rel": "https://web.archive.org/web/20150326103611/http://gdata.youtube.com/schemas/2007#mobile",
+                            "type": "text/html",
+                            "href": "https://web.archive.org/web/20150326103611/http://m.youtube.com/details?v=vdCY3QGoc8s"
+                        },
+                        {
+                            "rel": "https://web.archive.org/web/20150326103611/http://gdata.youtube.com/schemas/2007#uploader",
+                            "type": "application/atom+xml",
+                            "href": "https://web.archive.org/web/20150326103611/http://gdata.youtube.com/feeds/api/users/uDBNML7H8ER2w9n6BhdnCA?v=2"
+                        },
+                        {
+                            "rel": "self",
+                            "type": "application/atom+xml",
+                            "href": "https://web.archive.org/web/20150326103611/http://gdata.youtube.com/feeds/api/videos/vdCY3QGoc8s?v=2"
+                        }
+                    ],
+                    "author": [
+                        {
+                            "name": {
+                                "$t": "Ananna Anime"
+                            },
+                            "uri": {
+                                "$t": "https://web.archive.org/web/20150326103611/http://gdata.youtube.com/feeds/api/users/ANANNA98"
+                            },
+                            "yt$userId": {
+                                "$t": "uDBNML7H8ER2w9n6BhdnCA"
+                            }
+                        }
+                    ],
+                    "yt$accessControl": [
+                        {
+                            "action": "comment",
+                            "permission": "moderated"
+                        },
+                        {
+                            "action": "commentVote",
+                            "permission": "allowed"
+                        },
+                        {
+                            "action": "videoRespond",
+                            "permission": "moderated"
+                        },
+                        {
+                            "action": "rate",
+                            "permission": "allowed"
+                        },
+                        {
+                            "action": "embed",
+                            "permission": "allowed"
+                        },
+                        {
+                            "action": "list",
+                            "permission": "allowed"
+                        },
+                        {
+                            "action": "autoPlay",
+                            "permission": "allowed"
+                        },
+                        {
+                            "action": "syndicate",
+                            "permission": "allowed"
+                        }
+                    ],
+                    "gd$comments": {
+                        "gd$feedLink": {
+                            "rel": "https://web.archive.org/web/20150326103611/http://gdata.youtube.com/schemas/2007#comments",
+                            "href": "https://web.archive.org/web/20150326103611/http://gdata.youtube.com/feeds/api/videos/vdCY3QGoc8s/comments?v=2",
+                            "countHint": 5
+                        }
+                    },
+                    "media$group": {
+                        "media$category": [
+                            {
+                                "$t": "Film",
+                                "label": "Film & Animation",
+                                "scheme": "https://web.archive.org/web/20150326103611/http://gdata.youtube.com/schemas/2007/categories.cat"
+                            }
+                        ],
+                        "media$content": [
+                            {
+                                "url": "https://web.archive.org/web/20150326103611/http://www.youtube.com/v/vdCY3QGoc8s?version=3&f=videos&app=youtube_gdata",
+                                "type": "application/x-shockwave-flash",
+                                "medium": "video",
+                                "isDefault": "true",
+                                "expression": "full",
+                                "duration": 151,
+                                "yt$format": 5
+                            },
+                            {
+                                "url": "rtsp://r7---sn-a5m7zu7z.c.youtube.com/CiILENy73wIaGQnLc6gB3ZjQvRMYDSANFEgGUgZ2aWRlb3MM/0/0/0/video.3gp",
+                                "type": "video/3gpp",
+                                "medium": "video",
+                                "expression": "full",
+                                "duration": 151,
+                                "yt$format": 1
+                            },
+                            {
+                                "url": "rtsp://r7---sn-a5m7zu7z.c.youtube.com/CiILENy73wIaGQnLc6gB3ZjQvRMYESARFEgGUgZ2aWRlb3MM/0/0/0/video.3gp",
+                                "type": "video/3gpp",
+                                "medium": "video",
+                                "expression": "full",
+                                "duration": 151,
+                                "yt$format": 6
+                            }
+                        ],
+                        "media$credit": [
+                            {
+                                "$t": "ananna98",
+                                "role": "uploader",
+                                "scheme": "urn:youtube",
+                                "yt$display": "Ananna Anime"
+                            }
+                        ],
+                        "media$description": {
+                            "$t": "Un regno e una bambina",
+                            "type": "plain"
+                        },
+                        "media$keywords": {},
+                        "media$license": {
+                            "$t": "youtube",
+                            "type": "text/html",
+                            "href": "https://web.archive.org/web/20150326103611/http://www.youtube.com/t/terms"
+                        },
+                        "media$player": {
+                            "url": "https://web.archive.org/web/20150326103611/http://www.youtube.com/watch?v=vdCY3QGoc8s&feature=youtube_gdata_player"
+                        },
+                        "media$thumbnail": [
+                            {
+                                "url": "https://web.archive.org/web/20150326103611/http://i.ytimg.com/vi/vdCY3QGoc8s/default.jpg",
+                                "height": 90,
+                                "width": 120,
+                                "time": "00:01:15.500",
+                                "yt$name": "default"
+                            },
+                            {
+                                "url": "https://web.archive.org/web/20150326103611/http://i.ytimg.com/vi/vdCY3QGoc8s/mqdefault.jpg",
+                                "height": 180,
+                                "width": 320,
+                                "yt$name": "mqdefault"
+                            },
+                            {
+                                "url": "https://web.archive.org/web/20150326103611/http://i.ytimg.com/vi/vdCY3QGoc8s/hqdefault.jpg",
+                                "height": 360,
+                                "width": 480,
+                                "yt$name": "hqdefault"
+                            },
+                            {
+                                "url": "https://web.archive.org/web/20150326103611/http://i.ytimg.com/vi/vdCY3QGoc8s/1.jpg",
+                                "height": 90,
+                                "width": 120,
+                                "time": "00:00:37.750",
+                                "yt$name": "start"
+                            },
+                            {
+                                "url": "https://web.archive.org/web/20150326103611/http://i.ytimg.com/vi/vdCY3QGoc8s/2.jpg",
+                                "height": 90,
+                                "width": 120,
+                                "time": "00:01:15.500",
+                                "yt$name": "middle"
+                            },
+                            {
+                                "url": "https://web.archive.org/web/20150326103611/http://i.ytimg.com/vi/vdCY3QGoc8s/3.jpg",
+                                "height": 90,
+                                "width": 120,
+                                "time": "00:01:53.250",
+                                "yt$name": "end"
+                            }
+                        ],
+                        "media$title": {
+                            "$t": "Winx Club in Concerto - Un regno e una bambina",
+                            "type": "plain"
+                        },
+                        "yt$duration": {
+                            "seconds": "151"
+                        },
+                        "yt$uploaded": {
+                            "$t": "2012-03-31T11:29:11.000Z"
+                        },
+                        "yt$uploaderId": {
+                            "$t": "UCuDBNML7H8ER2w9n6BhdnCA"
+                        },
+                        "yt$videoid": {
+                            "$t": "vdCY3QGoc8s"
+                        },
+                        "gd$rating": {
+                            "average": 4.754386,
+                            "max": 5,
+                            "min": 1,
+                            "numRaters": 114,
+                            "rel": "https://web.archive.org/web/20150326103611/http://schemas.google.com/g/2005#overall"
+                        },
+                        "yt$statistics": {
+                            "favoriteCount": "0",
+                            "viewCount": "41718"
+                        },
+                        "yt$rating": {
+                            "numDislikes": "7",
+                            "numLikes": "107"
+                        }
+                    }
+                }
+        }
