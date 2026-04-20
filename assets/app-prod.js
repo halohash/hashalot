@@ -4,9 +4,10 @@
         var currentHost = window.location.hostname;
         var currentPort = window.location.port;
     
-        var APP_URL = "http://" + currentHost + ":" + (currentPort || "8090");  
+        var APP_URL = "http://" + currentHost;  
         var APP_HOST =  currentHost;  
-        var PROXY_URL = "http://" + currentHost + ":8070"; 
+        var YT2009_APP = "https://yt2009.truehosting.net"
+        var PROXY_URL = "http://" + currentHost; 
     
         console.log("APP_URL:", APP_URL);
         console.log("PROXY_URL:", PROXY_URL);
@@ -12184,7 +12185,7 @@
         z(Wg, ig);
         d = Wg.prototype;
         d.Ne = function() {
-            return this.Od.useStageGdata ? APP_URL + "/feeds/api" : APP_URL + "/feeds/api"
+            return this.Od.useStageGdata ? YT2009_APP + "/feeds/api" : YT2009_APP + "/feeds/api"
         };
         d.Uq = function() {
             return this.Od.supportsCors ? "GET" : "JSONP"
