@@ -11251,7 +11251,8 @@
                 STmost_popular_Howto: "icon-lips",
                 STmost_popular_Education: "icon-education",
                 STmost_popular_Animals: "icon-pets",
-                STmost_popular: "icon-star"
+                STmost_popular: "icon-star",
+                PLj6qdykhRWPlftrT7QngIDMR49VHK_B9f: "icon-trends",
             };
             this.Ga("sets", this.fQ)
         }
