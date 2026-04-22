@@ -17758,7 +17758,9 @@ console.log("PROXY_URL:", PROXY_URL);
 
 
     function RB(a, videoData) {
-
+if (!videoData.adaptiveFormats) {
+  videoData.adaptiveFormats = [];
+}
         console.log("Entering RB function");
 
         var meidaLinks = ExtractFormatsForCustomPlayerThingMaBob(videoData.adaptiveFormats);
