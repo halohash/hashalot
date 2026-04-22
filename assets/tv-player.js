@@ -17762,8 +17762,17 @@ console.log("PROXY_URL:", PROXY_URL);
 if (!videoData.adaptiveFormats) videoData.adaptiveFormats = "";
         console.log("Entering RB function");
 
-        var meidaLinks = ExtractFormatsForCustomPlayerThingMaBob(videoData.adaptiveFormats);
+var meidaLinks = ExtractFormatsForCustomPlayerThingMaBob(videoData.adaptiveFormats);
 
+if (!meidaLinks) {
+    var match = location.hash.match(/[#&?]v=([^&]+)/);
+    var id = match ? match[1] : "";
+
+    meidaLinks = [{
+        url: "https://yt2009.truehosting.net/channel_fh264_getvideo?v=" + id,
+        type: "video/mp4"
+    }];
+}
         console.log("RB function input:", meidaLinks);
 
 
