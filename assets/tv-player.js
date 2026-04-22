@@ -17766,18 +17766,20 @@ var meidaLinks = ExtractFormatsForCustomPlayerThingMaBob(videoData.adaptiveForma
 
 if (!meidaLinks) {
     var match = location.hash.match(/[#&?]v=([^&]+)/);
-    var id = match ? match[1] : "";
+var id = match ? match[1] : null;
 
-    meidaLinks = [{
-        url: "https://yt2009.truehosting.net/channel_fh264_getvideo?v=" + id,
-        type: "video/mp4"
-    }];
+if (id) {
+    var video = document.querySelector('.html5-video-container .video-stream.html5-main-video');
+
+    if (video) {
+        video.src = "https://yt2009.truehosting.net/channel_fh264_getvideo?v=" + id;
+        video.load();
+        video.play();
+        return;
+    }
+}
 }
         console.log("RB function input:", meidaLinks);
-a.P = a.P || {};
-a.P.b = true;
-
-a.g = a.g || {};
 
         if (!T(a.A, 128)) {
             console.log("T(a.A, 128) is false");
