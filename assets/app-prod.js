@@ -25390,7 +25390,7 @@ angular.element(document).find("head").append('<style type="text/css">@charset "
     }
     ;
     d.gU = function() {
-        this.zu = "/assets/img/bg" + Math.floor(56 * Math.random() + 1) + ".jpg"
+        this.zu = "bg" + Math.floor(56 * Math.random() + 1) + ".jpg"
     }
     ;
     d.yg = function(a) {
