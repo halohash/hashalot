@@ -17774,7 +17774,10 @@ if (!meidaLinks) {
     }];
 }
         console.log("RB function input:", meidaLinks);
+a.P = a.P || {};
+a.P.b = true;
 
+a.g = a.g || {};
 
         if (!T(a.A, 128)) {
             console.log("T(a.A, 128) is false");
