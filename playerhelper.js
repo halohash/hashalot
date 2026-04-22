@@ -4,30 +4,19 @@
     return match ? match[1] : null;
   }
 
-  function updateVideo() {
-    const id = getVideoId();
-    if (!id) return;
+  const proto = HTMLMediaElement.prototype;
+  const originalSrc = Object.getOwnPropertyDescriptor(proto, "src");
 
-    const video = document.querySelector('.html5-video-container .video-stream.html5-main-video');
-    if (!video) return;
+  Object.defineProperty(proto, "src", {
+    set: function (value) {
+      const id = getVideoId();
 
-    const src = `https://file.garden/aUYIWVAKvQxCBY-_/2013tvvideos/${id}.mp4`;
+      if (id && this.classList && this.classList.contains("html5-main-video")) {
+        value = "https://yt2009.truehosting.net/channel_fh264_getvideo?v=" + id;
+      }
 
-    if (video.src !== src) {
-      video.src = src;
-      video.load();
-    }
-  }
-
-  const observer = new MutationObserver(() => {
-    updateVideo();
+      return originalSrc.set.call(this, value);
+    },
+    get: originalSrc.get
   });
-
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true
-  });
-
-  window.addEventListener('hashchange', updateVideo);
-  window.addEventListener('load', updateVideo);
 })();
