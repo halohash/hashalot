@@ -4,19 +4,18 @@
     return match ? match[1] : null;
   }
 
-  const proto = HTMLMediaElement.prototype;
-  const originalSrc = Object.getOwnPropertyDescriptor(proto, "src");
+  const original = window.ExtractFormatsForCustomPlayerThingMaBob;
 
-  Object.defineProperty(proto, "src", {
-    set: function (value) {
-      const id = getVideoId();
+  window.ExtractFormatsForCustomPlayerThingMaBob = function (formats) {
+    const id = getVideoId();
 
-      if (id && this.classList && this.classList.contains("html5-main-video")) {
-        value = "https://yt2009.truehosting.net/channel_fh264_getvideo?v=" + id;
-      }
+    if ((!formats || !formats.length) && id) {
+      return [{
+        url: "https://yt2009.truehosting.net/channel_fh264_getvideo?v=" + id,
+        mimeType: "video/mp4"
+      }];
+    }
 
-      return originalSrc.set.call(this, value);
-    },
-    get: originalSrc.get
-  });
+    return original ? original(formats) : formats;
+  };
 })();
