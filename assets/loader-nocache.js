@@ -100,11 +100,11 @@ window.labels = {
         }
     } else if (c) {
         window.CLOSURE_NO_DEPS = true;
-        q(l + "/app-prod.css");
+        q(l + "/classic.css");
         n(l + "/app-concat-bundle.js");
     } else {
-        q(l + "/app-prod.css");
-        n(l + "/app-prod.js");
+        q(l + "/classic.css");
+        n(l + "/classic.js");
     }
 
     window.checkBrokenLabel = function() {
