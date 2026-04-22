@@ -4,22 +4,12 @@
     return match ? match[1] : null;
   }
 
-  function ensureVideo() {
+  function updateVideo() {
     const id = getVideoId();
     if (!id) return;
 
-    let container = document.querySelector('.html5-video-container');
-    if (!container) return;
-
-    let video = container.querySelector('.video-stream.html5-main-video');
-
-    if (!video) {
-      video = document.createElement('video');
-      video.className = 'video-stream html5-main-video';
-      video.controls = true;
-      video.autoplay = true;
-      container.appendChild(video);
-    }
+    const video = document.querySelector('.html5-video-container .video-stream.html5-main-video');
+    if (!video) return;
 
     const src = `https://file.garden/aUYIWVAKvQxCBY-_/2013tvvideos/${id}.mp4`;
 
@@ -29,9 +19,15 @@
     }
   }
 
-  window.addEventListener('hashchange', ensureVideo);
-  window.addEventListener('DOMContentLoaded', ensureVideo);
+  const observer = new MutationObserver(() => {
+    updateVideo();
+  });
 
-  const observer = new MutationObserver(ensureVideo);
-  observer.observe(document.documentElement, { childList: true, subtree: true });
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+
+  window.addEventListener('hashchange', updateVideo);
+  window.addEventListener('load', updateVideo);
 })();
