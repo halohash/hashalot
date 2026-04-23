@@ -3,7 +3,7 @@ export async function onRequest(context) {
     const { request } = context;
     const url = new URL(request.url);
 
-    const FEED_URL = "https://tv36.pages.dev/videos.json";
+    const FEED_URL = "https://your-domain/videos.json";
 
     const alt = url.searchParams.get("alt") || "xml";
     const callback = url.searchParams.get("callback");
@@ -21,21 +21,22 @@ export async function onRequest(context) {
     const route = parts.slice(feedIndex + 2);
 
     async function loadVideos() {
-      const res = await fetch(FEED_URL);
+      const res = await fetch(FEED_URL, { cf: { cacheTtl: 60 } });
       const text = await res.text();
       const data = JSON.parse(text);
 
       if (Array.isArray(data)) return data;
-      if (data.feed?.entry) return data.feed.entry;
+      if (data.feed && Array.isArray(data.feed.entry)) return data.feed.entry;
+
       return [];
     }
 
     function getId(v) {
-      return v?.media$group?.["yt$videoid"]?.$t;
+      return v?.media$group?.["yt$videoid"]?.$t || "";
     }
 
     function getTitle(v) {
-      return v?.title?.$t || "";
+      return typeof v.title === "string" ? v.title : v?.title?.$t || "";
     }
 
     function getDescription(v) {
@@ -43,12 +44,19 @@ export async function onRequest(context) {
     }
 
     function getAuthor(v) {
-      return v?.author?.name?.$t || "unknown";
-    }
+      if (!v?.author) return "unknown";
 
-    function paginate(list) {
-      const start = Math.max(startIndex - 1, 0);
-      return list.slice(start, start + maxResults);
+      if (typeof v.author === "string") return v.author;
+
+      if (v.author.name) {
+        if (typeof v.author.name === "string") return v.author.name;
+        if (typeof v.author.name.$t === "string") return v.author.name.$t;
+        if (typeof v.author.name.$t === "object") {
+          return v.author.name.$t?.$t || "unknown";
+        }
+      }
+
+      return "unknown";
     }
 
     function filter(list) {
@@ -57,6 +65,11 @@ export async function onRequest(context) {
         getTitle(v).toLowerCase().includes(query) ||
         getDescription(v).toLowerCase().includes(query)
       );
+    }
+
+    function paginate(list) {
+      const start = Math.max(startIndex - 1, 0);
+      return list.slice(start, start + maxResults);
     }
 
     function buildFeed(page, total, title, description = "") {
@@ -90,7 +103,7 @@ export async function onRequest(context) {
     }
 
     function escapeXML(str) {
-      return str
+      return String(str || "")
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
@@ -101,21 +114,22 @@ export async function onRequest(context) {
       const title = escapeXML(getTitle(v));
       const desc = escapeXML(getDescription(v));
       const author = escapeXML(getAuthor(v));
+      const videoUrl = v?.media$group?.["media$content"]?.[0]?.url || "";
 
       return `
 <entry>
   <id>${id}</id>
-  <published>${v.published}</published>
-  <updated>${v.updated}</updated>
+  <published>${v.published || ""}</published>
+  <updated>${v.updated || ""}</updated>
   <title>${title}</title>
-  <content>${desc}</content>
+  <content type="text">${desc}</content>
   <author>
     <name>${author}</name>
   </author>
   <media:group>
     <media:title>${title}</media:title>
     <media:description>${desc}</media:description>
-    <media:content url="${v.media$group.media$content[0].url}" type="video/mp4"/>
+    <media:content url="${videoUrl}" type="video/mp4"/>
     <yt:videoid>${id}</yt:videoid>
   </media:group>
 </entry>`;
@@ -148,21 +162,36 @@ export async function onRequest(context) {
 
     const videos = await loadVideos();
 
+    if (route[0] === "users" && route[2] === "uploads") {
+      const user = decodeURIComponent(route[1]).toLowerCase();
+
+      const list = videos.filter(v =>
+        getAuthor(v).toLowerCase() === user
+      );
+
+      const page = paginate(list);
+
+      if (alt === "json") {
+        return respondJSON(buildFeed(page, list.length, `${route[1]} uploads`));
+      }
+
+      return new Response(
+        buildXML(page, list.length, `${route[1]} uploads`),
+        { headers: { "content-type": "application/xml" } }
+      );
+    }
+
     let list = filter(videos);
     let page = paginate(list);
 
-    const title = "Videos";
-    const description = "YouTube feed";
-
     if (alt === "json") {
-      return respondJSON(buildFeed(page, list.length, title, description));
+      return respondJSON(buildFeed(page, list.length, "Videos", "YouTube feed"));
     }
 
-    const xml = buildXML(page, list.length, title, description);
-
-    return new Response(xml, {
-      headers: { "content-type": "application/xml" }
-    });
+    return new Response(
+      buildXML(page, list.length, "Videos", "YouTube feed"),
+      { headers: { "content-type": "application/xml" } }
+    );
 
   } catch (e) {
     return new Response(e.stack || String(e), {
