@@ -10,7 +10,7 @@ export async function onRequest(context) {
 
   const base = url.origin;
 
-  const rawPath = (params && params.page) ? params.page : "";
+  const rawPath = params?.page || "";
   const parts = rawPath.split("/").filter(Boolean);
 
   const videos = [
@@ -22,19 +22,17 @@ export async function onRequest(context) {
       userId: "ofBoD-pahdptI_UuvTcy1A",
       duration: 999,
       uploaded: "2009-12-17T10:11:27Z",
-      category: "Entertainment"
+      category: "Entertainment",
+      views: 1234
     }
   ];
 
-  function filterVideos() {
-    let result = videos;
-    if (query) {
-      result = result.filter(v =>
-        v.title.toLowerCase().includes(query) ||
-        v.description.toLowerCase().includes(query)
-      );
-    }
-    return result;
+  function filter(list) {
+    if (!query) return list;
+    return list.filter(v =>
+      v.title.toLowerCase().includes(query) ||
+      v.description.toLowerCase().includes(query)
+    );
   }
 
   function paginate(list) {
@@ -78,7 +76,7 @@ export async function onRequest(context) {
         },
         {
           href: `${base}/feeds/api/videos/${v.id}`,
-          rel: "http://gdata.youtube.com/schemas/2007#video.related",
+          rel: "self",
           type: "application/atom+xml"
         }
       ],
@@ -90,10 +88,11 @@ export async function onRequest(context) {
         },
         "media$content": [
           {
-            duration: v.duration,
+            url: `${base}/get_video?video_id=${v.id}/mp4`,
+            type: "video/mp4",
             medium: "video",
-            "yt$format": 5,
-            url: `${base}/get_video?video_id=${v.id}/mp4`
+            duration: v.duration,
+            "yt$format": 5
           }
         ],
         "media$credit": [
@@ -104,30 +103,29 @@ export async function onRequest(context) {
             "yt$display": v.author
           }
         ],
-        "media$description": { $t: v.description },
+        "media$description": { $t: v.description, type: "plain" },
         "media$keywords": {},
         "media$license": {
           $t: "youtube",
-          href: "http://www.youtube.com/t/terms",
-          type: "text/html"
+          type: "text/html",
+          href: "http://www.youtube.com/t/terms"
         },
         "media$player": {
           url: `http://www.youtube.com/watch?v=${v.id}`
         },
         "media$thumbnail": [
-          { height: 90, width: 120, time: "00:00:00", url: `//i.ytimg.com/vi/${v.id}/default.jpg` },
-          { height: 180, width: 320, time: "00:00:00", url: `//i.ytimg.com/vi/${v.id}/mqdefault.jpg` },
-          { height: 360, width: 480, time: "00:00:00", url: `//i.ytimg.com/vi/${v.id}/hqdefault.jpg` },
-          { height: 480, width: 360, time: "00:00:00", url: `//i.ytimg.com/vi/${v.id}/sddefault.jpg` },
-          { height: 90, width: 120, time: "00:00:00", url: `//i.ytimg.com/vi/${v.id}/1.jpg` },
-          { height: 90, width: 120, time: "00:00:00", url: `//i.ytimg.com/vi/${v.id}/2.jpg` },
-          { height: 90, width: 120, time: "00:00:00", url: `//i.ytimg.com/vi/${v.id}/3.jpg` }
+          { url: `//i.ytimg.com/vi/${v.id}/default.jpg`, height: 90, width: 120, time: "00:00:00" },
+          { url: `//i.ytimg.com/vi/${v.id}/mqdefault.jpg`, height: 180, width: 320, time: "00:00:00" },
+          { url: `//i.ytimg.com/vi/${v.id}/hqdefault.jpg`, height: 360, width: 480, time: "00:00:00" }
         ],
         "media$title": { $t: v.title, type: "plain" },
         "yt$duration": { seconds: String(v.duration) },
         "yt$uploaded": { $t: v.uploaded },
         "yt$videoid": { $t: v.id },
         "yt$uploaderId": { $t: v.userId }
+      },
+      "yt$statistics": {
+        viewCount: String(v.views)
       },
       published: v.uploaded,
       updated: v.uploaded,
@@ -136,7 +134,7 @@ export async function onRequest(context) {
     };
   }
 
-  function buildJSONFeed(list) {
+  function buildFeed(list, title = "Videos") {
     return {
       version: "1.0",
       encoding: "UTF-8",
@@ -153,15 +151,13 @@ export async function onRequest(context) {
           uri: "http://gdata.youtube.com",
           version: "2.1"
         },
-        id: { $t: "tag:youtube.com,2008:videos" },
+        id: { $t: `tag:youtube.com,2008:${title.toLowerCase()}` },
         logo: { $t: "http://www.gstatic.com/youtube/img/logo.png" },
-        title: { $t: "Videos" },
+        title: { $t: title },
         updated: { $t: new Date().toISOString() },
         xmlns: "http://www.w3.org/2005/Atom",
         "xmlns$app": "http://www.w3.org/2007/app",
         "xmlns$gd": "http://schemas.google.com/g/2005",
-        "xmlns$georss": "http://www.georss.org/georss",
-        "xmlns$gml": "http://www.opengis.net/gml",
         "xmlns$media": "http://search.yahoo.com/mrss/",
         "xmlns$openSearch": "http://a9.com/-/spec/opensearch/1.1/",
         "xmlns$yt": "http://gdata.youtube.com/schemas/2007"
@@ -178,30 +174,43 @@ export async function onRequest(context) {
     return new Response(body, { headers: { "content-type": "application/json" } });
   }
 
-  if (parts[0] === "videos" && parts[1]) {
-    const vid = videos.find(v => v.id === parts[1]);
-    if (!vid) return new Response("Not Found", { status: 404 });
-
-    if (alt === "json") {
-      return respondJSON({ entry: jsonEntry(vid) });
-    }
-
-    return new Response("<entry></entry>", {
+  if (alt !== "json") {
+    return new Response("<feed></feed>", {
       headers: { "content-type": "application/xml" }
     });
   }
 
-  if (parts[0] === "videos") {
-    const filtered = filterVideos();
-    const paged = paginate(filtered);
-
-    if (alt === "json") {
-      return respondJSON(buildJSONFeed(paged));
+  if (parts[0] === "feeds" && parts[1] === "api") {
+    if (parts[2] === "videos" && parts[3] && parts[4] === "related") {
+      const vid = videos.find(v => v.id === parts[3]);
+      if (!vid) return new Response("Not Found", { status: 404 });
+      return respondJSON(buildFeed(videos, "Related"));
     }
 
-    return new Response("<feed></feed>", {
-      headers: { "content-type": "application/xml" }
-    });
+    if (parts[2] === "videos" && parts[3] && parts[4] === "comments") {
+      return respondJSON(buildFeed([], "Comments"));
+    }
+
+    if (parts[2] === "videos" && parts[3]) {
+      const vid = videos.find(v => v.id === parts[3]);
+      if (!vid) return new Response("Not Found", { status: 404 });
+      return respondJSON({ entry: jsonEntry(vid) });
+    }
+
+    if (parts[2] === "videos") {
+      const list = paginate(filter(videos));
+      return respondJSON(buildFeed(list, "Videos"));
+    }
+
+    if (parts[2] === "users" && parts[4] === "uploads") {
+      const user = parts[3];
+      const list = videos.filter(v => v.author === user);
+      return respondJSON(buildFeed(list, `${user} uploads`));
+    }
+
+    if (parts[2] === "standardfeeds" && parts[3] === "most_popular") {
+      return respondJSON(buildFeed(videos, "Most Popular"));
+    }
   }
 
   return new Response("Not Found", { status: 404 });
