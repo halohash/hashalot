@@ -11,7 +11,15 @@ export async function onRequest(context) {
     const categoryParam = url.searchParams.get("category") || url.searchParams.get("list");
 
     const base = url.origin;
+
     const parts = url.pathname.split("/").filter(Boolean);
+
+    const feedIndex = parts.indexOf("feeds");
+    if (feedIndex === -1 || parts[feedIndex + 1] !== "api") {
+      return new Response("Not Found", { status: 404 });
+    }
+
+    const route = parts.slice(feedIndex + 2);
 
     const GDATA_SETS = {
       STmost_popular: "Most Popular",
@@ -155,101 +163,93 @@ export async function onRequest(context) {
       if (callback) body = `${callback}(${body})`;
       return new Response(body, {
         headers: {
-          "content-type": callback
-            ? "application/javascript"
-            : "application/json"
+          "content-type": callback ? "application/javascript" : "application/json"
         }
       });
     }
 
-    const apiIndex = parts.findIndex(p => p === "feeds");
-    if (apiIndex !== -1 && parts[apiIndex + 1] === "api") {
-      const route = parts.slice(apiIndex + 2);
+    if (alt !== "json") {
+      return new Response("<feed></feed>", {
+        headers: { "content-type": "application/xml" }
+      });
+    }
 
-      if (alt !== "json") {
-        return new Response("<feed></feed>", {
-          headers: { "content-type": "application/xml" }
-        });
-      }
+    if (route[0] === "standardfeeds") {
+      const id = route[1];
 
-      if (route[0] === "standardfeeds" && !route[1]) {
+      if (!id) {
         return respondJSON({
-          sets: Object.entries(GDATA_SETS).map(([id, title]) => ({
+          sets: Object.entries(GDATA_SETS).map(([key, title]) => ({
             title,
-            gdata_list_id: id,
+            gdata_list_id: key,
             gdata_url: `${base}/feeds/api/videos`,
             tab: "featured"
           }))
         });
       }
 
-      if (route[0] === "standardfeeds") {
-        const key = route[1];
-        const cat = GDATA_SETS[key];
+      const mapped = GDATA_SETS[id];
 
-        if (cat) {
-          const list = paginate(filter(videos.filter(v =>
-            cat === "Most Popular" || v.category === cat
-          )));
-          return respondJSON(buildFeed(list, cat));
-        }
-      }
+      const list = mapped
+        ? videos.filter(v => mapped === "Most Popular" || v.category === mapped)
+        : videos;
 
-      if (route[0] === "videos" && route[1] && route[2] === "related") {
-        return respondJSON(buildFeed(videos, "Related"));
-      }
-
-      if (route[0] === "videos" && route[1] && route[2] === "responses") {
-        return respondJSON(buildFeed(videos, "Responses"));
-      }
-
-      if (route[0] === "videos" && route[1] && route[2] === "comments") {
-        return respondJSON(buildFeed([], "Comments"));
-      }
-
-      if (route[0] === "videos" && route[1]) {
-        const vid = videos.find(v => v.id === route[1]);
-        if (!vid) return new Response("Not Found", { status: 404 });
-        return respondJSON({ entry: jsonEntry(vid) });
-      }
-
-      if (route[0] === "videos") {
-        let list = videos;
-
-        if (categoryParam && GDATA_SETS[categoryParam]) {
-          const cat = GDATA_SETS[categoryParam];
-          list = videos.filter(v =>
-            cat === "Most Popular" || v.category === cat
-          );
-        }
-
-        list = paginate(filter(list));
-        return respondJSON(buildFeed(list, "Videos"));
-      }
-
-      if (route[0] === "users" && route[2] === "uploads") {
-        const user = route[1];
-        const list = videos.filter(v => v.author === user);
-        return respondJSON(buildFeed(list, `${user} uploads`));
-      }
-
-      if (route[0] === "users" && route[1]) {
-        return respondJSON({
-          entry: {
-            "yt$username": { $t: route[1] }
-          }
-        });
-      }
+      return respondJSON(buildFeed(paginate(filter(list)), mapped || "Most Popular"));
     }
 
-    if (parts[0] === "get_video") {
+    if (route[0] === "videos" && route[1] && route[2] === "related") {
+      return respondJSON(buildFeed(videos, "Related"));
+    }
+
+    if (route[0] === "videos" && route[1] && route[2] === "responses") {
+      return respondJSON(buildFeed(videos, "Responses"));
+    }
+
+    if (route[0] === "videos" && route[1] && route[2] === "comments") {
+      return respondJSON(buildFeed([], "Comments"));
+    }
+
+    if (route[0] === "videos" && route[1]) {
+      const vid = videos.find(v => v.id === route[1]);
+      if (!vid) return respondJSON({ entry: null });
+      return respondJSON({ entry: jsonEntry(vid) });
+    }
+
+    if (route[0] === "videos") {
+      let list = videos;
+
+      if (categoryParam && GDATA_SETS[categoryParam]) {
+        const cat = GDATA_SETS[categoryParam];
+        list = videos.filter(v =>
+          cat === "Most Popular" || v.category === cat
+        );
+      }
+
+      return respondJSON(buildFeed(paginate(filter(list)), "Videos"));
+    }
+
+    if (route[0] === "users" && route[2] === "uploads") {
+      const user = route[1];
+      const list = videos.filter(v => v.author === user);
+      return respondJSON(buildFeed(list, `${user} uploads`));
+    }
+
+    if (route[0] === "users" && route[1]) {
+      return respondJSON({
+        entry: {
+          "yt$username": { $t: route[1] }
+        }
+      });
+    }
+
+    if (route[0] === "get_video") {
       const id = url.searchParams.get("video_id");
       const vid = videos.find(v => v.id === id);
       if (!vid) return new Response("Not Found", { status: 404 });
       return Response.redirect(vid.file, 302);
     }
 
-    if (parts[0] === "watch.swf") {
+    if (route[0] === "watch.swf") {
       return Response.redirect(
         "https://archive.org/download/youtube-swf/youtube-player.swf",
         302
