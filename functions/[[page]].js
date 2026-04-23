@@ -4,7 +4,6 @@ export async function onRequest(context) {
   const ip = request.headers.get("CF-Connecting-IP");
 
   const blockedIPs = [
-    "185.65.133.126",
     "205.210.31.86",
     "119.179.249.227",
     "61.72.55.130",
