@@ -3,7 +3,7 @@ export async function onRequest(context) {
     const { request } = context;
     const url = new URL(request.url);
 
-    const FEED_URL = "https://your-domain/videos.json";
+    const FEED_URL = "https://tv36.pages.dev/videos.json";
 
     const alt = url.searchParams.get("alt") || "xml";
     const callback = url.searchParams.get("callback");
