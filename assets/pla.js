@@ -12746,7 +12746,7 @@
             this.I || (this.qn = this.mj.cL(this.mn.ev), this.qn.yd = w(this.hL, this, "leanback-player-container", this.dL()), this.fL(), this.eL())
         };
         d.fL = function() {
-            this.qj ? this.Zf() : yd("html5-video-player") ? (this.qj = !0, this.Zf()) : this.lC.get("/leanback_ajax", {
+            this.qj ? this.Zf() : yd("html5-video-player") ? (this.qj = !0, this.Zf()) : this.lC.get("/reverend_ajax", {
                 action_player_template: 1,
                 hl: this.Vs.ld,
                 override_hl: 1
@@ -23418,7 +23418,7 @@
             });
             [{
                 name: "featuredService",
-                path: "/leanback_ajax",
+                path: "/reverend_ajax",
                 parser: "featuredParser",
                 paramKey: null,
                 params: {
