@@ -37,7 +37,7 @@ export async function onRequest(context) {
       STmost_popular_Animals: "Pets & Animals"
     };
 
-    const videos = [
+const videos = [
   {
     author: {
       name: { $t: "jawed" },
@@ -64,9 +64,7 @@ export async function onRequest(context) {
       rel: "http://gdata.youtube.com/schemas/2007#comments",
       countHint: 1
     },
-    id: {
-      $t: "tag:youtube.com,2008:video:jNQXAC9IVRw"
-    },
+    id: { $t: "tag:youtube.com,2008:video:jNQXAC9IVRw" },
     link: [
       {
         href: "http://www.youtube.com/watch?v=jNQXAC9IVRw",
@@ -101,9 +99,7 @@ export async function onRequest(context) {
           "yt$display": "jawed"
         }
       ],
-      "media$description": {
-        $t: "-"
-      },
+      "media$description": { $t: "-" },
       "media$keywords": {},
       "media$license": {
         $t: "youtube",
@@ -114,56 +110,111 @@ export async function onRequest(context) {
         url: "http://www.youtube.com/watch?v=jNQXAC9IVRw"
       },
       "media$thumbnail": [
-        {
-          height: 90,
-          width: 120,
-          time: "00:00:00",
-          url: "//i.ytimg.com/vi/jNQXAC9IVRw/default.jpg"
-        },
-        {
-          height: 180,
-          width: 320,
-          time: "00:00:00",
-          url: "//i.ytimg.com/vi/jNQXAC9IVRw/mqdefault.jpg"
-        },
-        {
-          height: 360,
-          width: 480,
-          time: "00:00:00",
-          url: "//i.ytimg.com/vi/jNQXAC9IVRw/hqdefault.jpg"
-        },
-        {
-          height: 480,
-          width: 360,
-          time: "00:00:00",
-          url: "//i.ytimg.com/vi/jNQXAC9IVRw/sddefault.jpg"
-        }
+        { height: 90, width: 120, time: "00:00:00", url: "//i.ytimg.com/vi/jNQXAC9IVRw/default.jpg" },
+        { height: 180, width: 320, time: "00:00:00", url: "//i.ytimg.com/vi/jNQXAC9IVRw/mqdefault.jpg" },
+        { height: 360, width: 480, time: "00:00:00", url: "//i.ytimg.com/vi/jNQXAC9IVRw/hqdefault.jpg" },
+        { height: 480, width: 360, time: "00:00:00", url: "//i.ytimg.com/vi/jNQXAC9IVRw/sddefault.jpg" }
       ],
-      "media$title": {
-        $t: "Me at the zoo",
-        type: "plain"
-      },
-      "yt$duration": {
-        seconds: "999"
-      },
-      "yt$uploaded": {
-        $t: "2005-04-24T03:31:52Z"
-      },
-      "yt$videoid": {
-        $t: "jNQXAC9IVRw"
-      },
-      "yt$uploaderId": {
-        $t: "4QobU6STFB0P71PMvOGN5A"
-      }
+      "media$title": { $t: "Me at the zoo", type: "plain" },
+      "yt$duration": { seconds: "2" },
+      "yt$uploaded": { $t: "2005-04-24T03:31:52Z" },
+      "yt$videoid": { $t: "jNQXAC9IVRw" },
+      "yt$uploaderId": { $t: "4QobU6STFB0P71PMvOGN5A" }
     },
     published: "2005-04-24T03:31:52Z",
     updated: "2005-04-24T03:31:52Z",
-    title: {
-      $t: "Me at the zoo"
-    },
+    title: { $t: "Me at the zoo" },
     "yt$hd": {}
   },
-  {"author":{"name":{"$t":"Google Nexus"},"uri":{"$t":"http://a-yt2009.truehosting.net:80/feeds/api/users/Google Nexus"}},"category":[{"scheme":"http://schemas.google.com/g/2005#kind","term":"http://gdata.youtube.com/schemas/2007#video"},{"label":"-","scheme":"http://gdata.youtube.com/schemas/2007/categories.cat","term":"-"}],"content":{"src":"http://a-yt2009.truehosting.net:80/watch.swf?video_id6AAFF9PN-WU","type":"application/x-shockwave-flash"},"gd$comments":{"gd$feedLink":"http://a-yt2009.truehosting.net:80/feeds/api/videos/6AAFF9PN-WU/comments","rel":"http://gdata.youtube.com/schemas/2007#comments","countHint":1},"id":{"$t":"tag:youtube.com,2008:video:6AAFF9PN-WU"},"link":[{"href":"http://www.youtube.com/watch?v=6AAFF9PN-WU","rel":"alternate","type":"text/html"},{"href":"http://a-yt2009.truehosting.net:80/feeds/api/videos/6AAFF9PN-WU","rel":"http://gdata.youtube.com/schemas/2007#video.related","type":"application/atom+xml"}],"media$group":{"media$category":{"label":"-","scheme":"http://gdata.youtube.com/schemas/2007/categories.cat","term":"-"},"media$content":[{"duration":"2:00","medium":"video","yt$format":5,"url":"http://a-yt2009.truehosting.net:80/get_video?video_id=6AAFF9PN-WU/mp4"}],"media$credit":[{"$t":"Google Nexus","role":"uploader","scheme":"urn:youtube","yt$display":"Google Nexus"}],"media$description":{"$t":"-"},"media$keywords":{},"media$license":{"$t":"youtube","href":"http://www.youtube.com/t/terms","type":"text/html"},"media$player":{"url":"http://www.youtube.com/watch?v=6AAFF9PN-WU"},"media$thumbnail":[{"height":90,"width":120,"time":"00:00:00","url":"//i.ytimg.com/vi/6AAFF9PN-WU/default.jpg"},{"height":180,"width":320,"time":"00:00:00","url":"//i.ytimg.com/vi/6AAFF9PN-WU/mqdefault.jpg"},{"height":360,"width":480,"time":"00:00:00","url":"//i.ytimg.com/vi/6AAFF9PN-WU/hqdefault.jpg"},{"height":480,"width":360,"time":"00:00:00","url":"//i.ytimg.com/vi/6AAFF9PN-WU/sddefault.jpg"},{"height":90,"width":120,"time":"00:00:00","url":"//i.ytimg.com/vi/6AAFF9PN-WU/1.jpg"},{"height":90,"width":120,"time":"00:00:00","url":"//i.ytimg.com/vi/6AAFF9PN-WU/2.jpg"},{"height":90,"width":120,"time":"00:00:00","url":"//i.ytimg.com/vi/6AAFF9PN-WU/3.jpg"}],"media$title":{"$t":"Explore Nexus S: Youtube 2.0","type":"plain"},"yt$duration":{"seconds":"2:00"},"yt$uploaded":{"$t":"2011-04-22T22:00:00.000Z"},"yt$videoid":{"$t":"6AAFF9PN-WU"}},"published":{"$t":"2011-04-22T22:00:00.000Z"},"updated":{"$t":"2011-04-22T22:00:00.000Z"},"y9$rupload":"15 years ago","title":{"$t":"Explore Nexus S: Youtube 2.0"},"yt$hd":{}}
+
+  {
+    author: {
+      name: { $t: "Google Nexus" },
+      uri: { $t: "http://a-yt2009.truehosting.net:80/feeds/api/users/Google%20Nexus" },
+      "yt$userId": { $t: "unknown" }
+    },
+    category: [
+      {
+        scheme: "http://schemas.google.com/g/2005#kind",
+        term: "http://gdata.youtube.com/schemas/2007#video"
+      },
+      {
+        label: "-",
+        scheme: "http://gdata.youtube.com/schemas/2007/categories.cat",
+        term: "-"
+      }
+    ],
+    content: {
+      src: "http://a-yt2009.truehosting.net:80/watch.swf?video_id=6AAFF9PN-WU",
+      type: "application/x-shockwave-flash"
+    },
+    "gd$comments": {
+      "gd$feedLink": "http://a-yt2009.truehosting.net:80/feeds/api/videos/6AAFF9PN-WU/comments",
+      rel: "http://gdata.youtube.com/schemas/2007#comments",
+      countHint: 1
+    },
+    id: { $t: "tag:youtube.com,2008:video:6AAFF9PN-WU" },
+    link: [
+      {
+        href: "http://www.youtube.com/watch?v=6AAFF9PN-WU",
+        rel: "alternate",
+        type: "text/html"
+      },
+      {
+        href: "http://a-yt2009.truehosting.net:80/feeds/api/videos/6AAFF9PN-WU",
+        rel: "http://gdata.youtube.com/schemas/2007#video.related",
+        type: "application/atom+xml"
+      }
+    ],
+    "media$group": {
+      "media$category": {
+        label: "-",
+        scheme: "http://gdata.youtube.com/schemas/2007/categories.cat",
+        term: "-"
+      },
+      "media$content": [
+        {
+          duration: 120,
+          medium: "video",
+          "yt$format": 5,
+          url: "http://a-yt2009.truehosting.net:80/get_video?video_id=6AAFF9PN-WU/mp4"
+        }
+      ],
+      "media$credit": [
+        {
+          $t: "Google Nexus",
+          role: "uploader",
+          scheme: "urn:youtube",
+          "yt$display": "Google Nexus"
+        }
+      ],
+      "media$description": { $t: "-" },
+      "media$keywords": {},
+      "media$license": {
+        $t: "youtube",
+        href: "http://www.youtube.com/t/terms",
+        type: "text/html"
+      },
+      "media$player": {
+        url: "http://www.youtube.com/watch?v=6AAFF9PN-WU"
+      },
+      "media$thumbnail": [
+        { height: 90, width: 120, time: "00:00:00", url: "//i.ytimg.com/vi/6AAFF9PN-WU/default.jpg" },
+        { height: 180, width: 320, time: "00:00:00", url: "//i.ytimg.com/vi/6AAFF9PN-WU/mqdefault.jpg" },
+        { height: 360, width: 480, time: "00:00:00", url: "//i.ytimg.com/vi/6AAFF9PN-WU/hqdefault.jpg" },
+        { height: 480, width: 360, time: "00:00:00", url: "//i.ytimg.com/vi/6AAFF9PN-WU/sddefault.jpg" }
+      ],
+      "media$title": { $t: "Explore Nexus S: Youtube 2.0", type: "plain" },
+      "yt$duration": { seconds: "120" },
+      "yt$uploaded": { $t: "2011-04-22T22:00:00Z" },
+      "yt$videoid": { $t: "6AAFF9PN-WU" },
+      "yt$uploaderId": { $t: "unknown" }
+    },
+    published: "2011-04-22T22:00:00Z",
+    updated: "2011-04-22T22:00:00Z",
+    title: { $t: "Explore Nexus S: Youtube 2.0" },
+    "yt$hd": {}
+  }
 ];
 
     function filter(list) {
