@@ -114,36 +114,36 @@ export async function onRequest(context) {
     }
 
     function buildFeed(list, title) {
-      return {
-        version: "1.0",
-        encoding: "UTF-8",
-        feed: {
-          entry: list.map(jsonEntry),
-          "openSearch$totalResults": { $t: String(list.length) },
-          "openSearch$startIndex": { $t: String(startIndex) },
-          "openSearch$itemsPerPage": { $t: String(maxResults) },
-          category: [
-            {
-              scheme: "http://schemas.google.com/g/2005#kind",
-              term: "http://gdata.youtube.com/schemas/2007#video"
-            }
-          ],
-          generator: {
-            $t: "YouTube data API",
-            uri: "http://gdata.youtube.com",
-            version: "2.1"
-          },
-          id: { $t: "tag:youtube.com,2008:videos" },
-          logo: { $t: "http://www.gstatic.com/youtube/img/logo.png" },
-          title: { $t: title },
-          updated: { $t: new Date().toISOString() },
-          xmlns: "http://www.w3.org/2005/Atom",
-          "xmlns$media": "http://search.yahoo.com/mrss/",
-          "xmlns$yt": "http://gdata.youtube.com/schemas/2007",
-          "xmlns$openSearch": "http://a9.com/-/spec/opensearch/1.1/"
+  return {
+    version: "1.0",
+    encoding: "UTF-8",
+    feed: {
+      entry: list,
+      "openSearch$totalResults": { $t: String(list.length) },
+      "openSearch$startIndex": { $t: "1" },
+      "openSearch$itemsPerPage": { $t: "25" },
+      category: [
+        {
+          scheme: "http://schemas.google.com/g/2005#kind",
+          term: "http://gdata.youtube.com/schemas/2007#video"
         }
-      };
+      ],
+      generator: {
+        $t: "YouTube data API",
+        uri: "http://gdata.youtube.com",
+        version: "2.1"
+      },
+      id: { $t: "tag:youtube.com,2008:videos" },
+      logo: { $t: "http://www.gstatic.com/youtube/img/logo.png" },
+      title: { $t: title },
+      updated: { $t: new Date().toISOString() },
+      xmlns: "http://www.w3.org/2005/Atom",
+      "xmlns$media": "http://search.yahoo.com/mrss/",
+      "xmlns$yt": "http://gdata.youtube.com/schemas/2007",
+      "xmlns$openSearch": "http://a9.com/-/spec/opensearch/1.1/"
     }
+  };
+}
 
     function respondJSON(data) {
       let body = JSON.stringify(data);
