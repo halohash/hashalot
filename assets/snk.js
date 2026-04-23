@@ -100,10 +100,10 @@ window.labels = {
         }
     } else if (c) {
         window.CLOSURE_NO_DEPS = true;
-        q(l + "/classic.css");
+        q(l + "/reverend.css");
         n(l + "/app-concat-bundle.js");
     } else {
-        q(l + "/classic.css");
+        q(l + "/reverend.css");
         n(l + "/pla.js");
     }
 
