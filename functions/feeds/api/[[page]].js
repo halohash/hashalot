@@ -10,8 +10,8 @@ export async function onRequest(context) {
 
   const base = url.origin;
 
-  const path = params.page || "";
-  const parts = path.split("/").filter(Boolean);
+  const rawPath = (params && params.page) ? params.page : "";
+  const parts = rawPath.split("/").filter(Boolean);
 
   const videos = [
     {
@@ -180,11 +180,15 @@ export async function onRequest(context) {
 
   if (parts[0] === "videos" && parts[1]) {
     const vid = videos.find(v => v.id === parts[1]);
-    if (!vid) return new Response("you did not put a cd in pc so this is now a fucking teapot lol", { status: 418 });
+    if (!vid) return new Response("Not Found", { status: 404 });
 
     if (alt === "json") {
       return respondJSON({ entry: jsonEntry(vid) });
     }
+
+    return new Response("<entry></entry>", {
+      headers: { "content-type": "application/xml" }
+    });
   }
 
   if (parts[0] === "videos") {
@@ -194,13 +198,11 @@ export async function onRequest(context) {
     if (alt === "json") {
       return respondJSON(buildJSONFeed(paged));
     }
-  }
 
-  if (alt === "xml") {
     return new Response("<feed></feed>", {
       headers: { "content-type": "application/xml" }
     });
   }
 
-  return new Response("Unavailable", { status: 500 });
+  return new Response("Not Found", { status: 404 });
 }
