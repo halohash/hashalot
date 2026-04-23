@@ -11,7 +11,7 @@
 
     if ((!formats || !formats.length) && id) {
       return [{
-        url: "https://hashpie.pages.dev/channel_fh264_getvideo?v=" + id,
+        url: "https://tv36.pages.dev/channel_fh264_getvideo?v=" + id,
         mimeType: "video/mp4"
       }];
     }
