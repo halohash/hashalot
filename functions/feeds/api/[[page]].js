@@ -225,33 +225,6 @@ ${page.map(entryXML).join("")}
     }
 
 
-// /users/trends/favorites
-if (route[0] === "users" && route[1] === "trends" && route[2] === "favorites") {
-  const entries = videos.map(v => entryXML(v)).join("");
-
-  return alt === "json"
-    ? respondJSON({ feed: { entry: videos } })
-    : new Response(
-        `<?xml version="1.0" encoding="UTF-8"?>
-<feed>${entries}</feed>`,
-        { headers: { "content-type": "application/xml" } }
-      );
-}
-
-
-// rec
-if (route[0] === "users" && route[1] === "default" && route[2] === "recommendations") {
-  const entries = videos.map(v => entryXML(v)).join("");
-
-  return alt === "json"
-    ? respondJSON({ feed: { entry: videos } })
-    : new Response(
-        `<?xml version="1.0" encoding="UTF-8"?>
-<feed>${entries}</feed>`,
-        { headers: { "content-type": "application/xml" } }
-      );
-}
-
     // ✅ video list
     if (route[0] === "videos") {
       const list = filter(videos);
