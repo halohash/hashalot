@@ -8,9 +8,26 @@ export async function onRequest(context) {
     const query = (url.searchParams.get("q") || "").toLowerCase();
     const startIndex = parseInt(url.searchParams.get("start-index") || "1");
     const maxResults = parseInt(url.searchParams.get("max-results") || "25");
+    const categoryParam = url.searchParams.get("category") || url.searchParams.get("list");
 
     const base = url.origin;
     const parts = url.pathname.split("/").filter(Boolean);
+
+    const GDATA_SETS = {
+      STmost_popular: "Most Popular",
+      STmost_popular_Music: "Music",
+      STmost_popular_Games: "Gaming",
+      STmost_popular_Sports: "Sports",
+      STmost_popular_Film: "Film & Animation",
+      STmost_popular_Entertainment: "Entertainment",
+      STmost_popular_Comedy: "Comedy",
+      STmost_popular_News: "News & Politics",
+      STmost_popular_People: "People & Blogs",
+      STmost_popular_Tech: "Science & Technology",
+      STmost_popular_Howto: "Howto & Style",
+      STmost_popular_Education: "Education",
+      STmost_popular_Animals: "Pets & Animals"
+    };
 
     const videos = [
       {
@@ -62,11 +79,6 @@ export async function onRequest(context) {
           src: `${base}/watch.swf?video_id=${v.id}`,
           type: "application/x-shockwave-flash"
         },
-        "gd$comments": {
-          "gd$feedLink": `${base}/feeds/api/videos/${v.id}/comments`,
-          rel: "http://gdata.youtube.com/schemas/2007#comments",
-          countHint: 1
-        },
         id: { $t: `tag:youtube.com,2008:video:${v.id}` },
         link: [
           {
@@ -81,11 +93,6 @@ export async function onRequest(context) {
           }
         ],
         "media$group": {
-          "media$category": {
-            label: v.category,
-            scheme: "http://gdata.youtube.com/schemas/2007/categories.cat",
-            term: v.category
-          },
           "media$content": [
             {
               url: `${base}/get_video?video_id=${v.id}/mp4`,
@@ -95,42 +102,19 @@ export async function onRequest(context) {
               "yt$format": 5
             }
           ],
-          "media$credit": [
-            {
-              $t: v.author,
-              role: "uploader",
-              scheme: "urn:youtube",
-              "yt$display": v.author
-            }
-          ],
-          "media$description": { $t: v.description, type: "plain" },
-          "media$keywords": {},
-          "media$license": {
-            $t: "youtube",
-            type: "text/html",
-            href: "http://www.youtube.com/t/terms"
-          },
-          "media$player": {
-            url: `http://www.youtube.com/watch?v=${v.id}`
-          },
-          "media$thumbnail": [
-            { url: `//i.ytimg.com/vi/${v.id}/default.jpg`, height: 90, width: 120, time: "00:00:00" },
-            { url: `//i.ytimg.com/vi/${v.id}/mqdefault.jpg`, height: 180, width: 320, time: "00:00:00" },
-            { url: `//i.ytimg.com/vi/${v.id}/hqdefault.jpg`, height: 360, width: 480, time: "00:00:00" }
-          ],
           "media$title": { $t: v.title, type: "plain" },
           "yt$duration": { seconds: String(v.duration) },
-          "yt$uploaded": { $t: v.uploaded },
           "yt$videoid": { $t: v.id },
-          "yt$uploaderId": { $t: v.userId }
+          "media$thumbnail": [
+            { url: `//i.ytimg.com/vi/${v.id}/hqdefault.jpg`, width: 480, height: 360 }
+          ]
         },
         "yt$statistics": {
           viewCount: String(v.views)
         },
         published: v.uploaded,
         updated: v.uploaded,
-        title: { $t: v.title },
-        "yt$hd": {}
+        title: { $t: v.title }
       };
     }
 
@@ -154,27 +138,28 @@ export async function onRequest(context) {
             uri: "http://gdata.youtube.com",
             version: "2.1"
           },
-          id: { $t: `tag:youtube.com,2008:${title.toLowerCase().replace(/ /g, "")}` },
+          id: { $t: "tag:youtube.com,2008:videos" },
           logo: { $t: "http://www.gstatic.com/youtube/img/logo.png" },
           title: { $t: title },
           updated: { $t: new Date().toISOString() },
           xmlns: "http://www.w3.org/2005/Atom",
-          "xmlns$app": "http://www.w3.org/2007/app",
-          "xmlns$gd": "http://schemas.google.com/g/2005",
           "xmlns$media": "http://search.yahoo.com/mrss/",
-          "xmlns$openSearch": "http://a9.com/-/spec/opensearch/1.1/",
-          "xmlns$yt": "http://gdata.youtube.com/schemas/2007"
+          "xmlns$yt": "http://gdata.youtube.com/schemas/2007",
+          "xmlns$openSearch": "http://a9.com/-/spec/opensearch/1.1/"
         }
       };
     }
 
     function respondJSON(data) {
       let body = JSON.stringify(data);
-      if (callback) {
-        body = `${callback}(${body})`;
-        return new Response(body, { headers: { "content-type": "application/javascript" } });
-      }
-      return new Response(body, { headers: { "content-type": "application/json" } });
+      if (callback) body = `${callback}(${body})`;
+      return new Response(body, {
+        headers: {
+          "content-type": callback
+            ? "application/javascript"
+            : "application/json"
+        }
+      });
     }
 
     const apiIndex = parts.findIndex(p => p === "feeds");
@@ -187,10 +172,27 @@ export async function onRequest(context) {
         });
       }
 
+      if (route[0] === "standardfeeds" && !route[1]) {
+        return respondJSON({
+          sets: Object.entries(GDATA_SETS).map(([id, title]) => ({
+            title,
+            gdata_list_id: id,
+            gdata_url: `${base}/feeds/api/videos`,
+            tab: "featured"
+          }))
+        });
+      }
+
       if (route[0] === "standardfeeds") {
-        if (route[1] === "most_popular") return respondJSON(buildFeed(videos, "Most Popular"));
-        if (route[1] === "recently_featured") return respondJSON(buildFeed(videos, "Recently Featured"));
-        if (route[1] === "top_rated") return respondJSON(buildFeed(videos, "Top Rated"));
+        const key = route[1];
+        const cat = GDATA_SETS[key];
+
+        if (cat) {
+          const list = paginate(filter(videos.filter(v =>
+            cat === "Most Popular" || v.category === cat
+          )));
+          return respondJSON(buildFeed(list, cat));
+        }
       }
 
       if (route[0] === "videos" && route[1] && route[2] === "related") {
@@ -212,13 +214,23 @@ export async function onRequest(context) {
       }
 
       if (route[0] === "videos") {
-        const list = paginate(filter(videos));
+        let list = videos;
+
+        if (categoryParam && GDATA_SETS[categoryParam]) {
+          const cat = GDATA_SETS[categoryParam];
+          list = videos.filter(v =>
+            cat === "Most Popular" || v.category === cat
+          );
+        }
+
+        list = paginate(filter(list));
         return respondJSON(buildFeed(list, "Videos"));
       }
 
       if (route[0] === "users" && route[2] === "uploads") {
-        const list = videos.filter(v => v.author === route[1]);
-        return respondJSON(buildFeed(list, `${route[1]} uploads`));
+        const user = route[1];
+        const list = videos.filter(v => v.author === user);
+        return respondJSON(buildFeed(list, `${user} uploads`));
       }
 
       if (route[0] === "users" && route[1]) {
@@ -238,13 +250,16 @@ export async function onRequest(context) {
     }
 
     if (parts[0] === "watch.swf") {
-      return Response.redirect("https://archive.org/download/youtube-swf/youtube-player.swf", 302);
+      return Response.redirect(
+        "https://archive.org/download/youtube-swf/youtube-player.swf",
+        302
+      );
     }
 
     return new Response("Not Found", { status: 404 });
 
   } catch (e) {
-    return new Response(e.stack || e.toString(), {
+    return new Response(e.stack || String(e), {
       status: 500,
       headers: { "content-type": "text/plain" }
     });
