@@ -20,16 +20,28 @@ export async function onRequest(context) {
 
     const route = parts.slice(feedIndex + 2);
 
+    const STANDARD_FEEDS = {
+      most_popular: "Most Popular",
+      most_popular_Music: "Music",
+      most_popular_Games: "Gaming",
+      most_popular_Sports: "Sports",
+      most_popular_Film: "Film & Animation",
+      most_popular_Entertainment: "Entertainment",
+      most_popular_Comedy: "Comedy",
+      most_popular_News: "News & Politics",
+      most_popular_People: "People & Blogs",
+      most_popular_Tech: "Science & Technology",
+      most_popular_Howto: "Howto & Style",
+      most_popular_Education: "Education",
+      most_popular_Animals: "Pets & Animals"
+    };
+
     async function loadVideos() {
       const res = await fetch(FEED_URL, { cf: { cacheTtl: 60 } });
-      if (!res.ok) throw new Error("Failed to fetch feed");
-
-      const text = await res.text();
-      const data = JSON.parse(text);
-
+      if (!res.ok) throw new Error("Feed fetch failed");
+      const data = await res.json();
       if (Array.isArray(data)) return data;
-      if (data.feed && Array.isArray(data.feed.entry)) return data.feed.entry;
-
+      if (data.feed?.entry) return data.feed.entry;
       return [];
     }
 
@@ -38,10 +50,7 @@ export async function onRequest(context) {
     }
 
     function getTitle(v) {
-      if (typeof v.title === "string") return v.title;
-      if (typeof v?.title?.$t === "string") return v.title.$t;
-      if (typeof v?.title?.$t === "object") return v.title.$t?.$t || "";
-      return "";
+      return v?.title?.$t || "";
     }
 
     function getDescription(v) {
@@ -49,19 +58,11 @@ export async function onRequest(context) {
     }
 
     function getAuthor(v) {
-      if (!v?.author) return "unknown";
+      return v?.author?.name?.$t || "unknown";
+    }
 
-      if (typeof v.author === "string") return v.author;
-
-      if (v.author.name) {
-        if (typeof v.author.name === "string") return v.author.name;
-        if (typeof v.author.name.$t === "string") return v.author.name.$t;
-        if (typeof v.author.name.$t === "object") {
-          return v.author.name.$t?.$t || "unknown";
-        }
-      }
-
-      return "unknown";
+    function getCategory(v) {
+      return v?.media$group?.["media$category"]?.term || "";
     }
 
     function getVideoURL(v) {
@@ -81,18 +82,13 @@ export async function onRequest(context) {
       return list.slice(start, start + maxResults);
     }
 
-    function buildFeed(page, total, title, description = "") {
+    function buildFeed(page, total, title) {
       return {
         version: "1.0",
         encoding: "UTF-8",
         feed: {
           entry: page,
           title: { $t: title },
-          subtitle: { $t: description },
-          author: {
-            name: { $t: "YouTube" },
-            uri: { $t: "http://www.youtube.com/" }
-          },
           "openSearch$totalResults": { $t: String(total) },
           "openSearch$startIndex": { $t: String(startIndex) },
           "openSearch$itemsPerPage": { $t: String(maxResults) },
@@ -118,138 +114,126 @@ export async function onRequest(context) {
         .replace(/>/g, "&gt;");
     }
 
-    function entryToXML(v) {
-      const id = getId(v);
-      const title = escapeXML(getTitle(v));
-      const desc = escapeXML(getDescription(v));
-      const author = escapeXML(getAuthor(v));
-      const videoUrl = getVideoURL(v);
-
+    function entryXML(v) {
       return `
 <entry>
-  <id>${id}</id>
-  <published>${v.published || ""}</published>
-  <updated>${v.updated || ""}</updated>
-  <title>${title}</title>
-  <content type="text">${desc}</content>
-  <author>
-    <name>${author}</name>
-  </author>
+  <id>${getId(v)}</id>
+  <title>${escapeXML(getTitle(v))}</title>
+  <content>${escapeXML(getDescription(v))}</content>
+  <author><name>${escapeXML(getAuthor(v))}</name></author>
   <media:group>
-    <media:title>${title}</media:title>
-    <media:description>${desc}</media:description>
-    <media:content url="${videoUrl}" type="video/mp4"/>
-    <yt:videoid>${id}</yt:videoid>
+    <media:title>${escapeXML(getTitle(v))}</media:title>
+    <media:content url="${getVideoURL(v)}"/>
+    <yt:videoid>${getId(v)}</yt:videoid>
   </media:group>
 </entry>`;
     }
 
-    function buildXML(page, total, title, description = "") {
+    function buildXML(page, total, title) {
       return `<?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom"
  xmlns:media="http://search.yahoo.com/mrss/"
- xmlns:yt="http://gdata.youtube.com/schemas/2007"
- xmlns:openSearch="http://a9.com/-/spec/opensearch/1.1/">
+ xmlns:yt="http://gdata.youtube.com/schemas/2007">
 
-  <title>${escapeXML(title)}</title>
-  <subtitle>${escapeXML(description)}</subtitle>
-  <updated>${new Date().toISOString()}</updated>
+<title>${escapeXML(title)}</title>
+<updated>${new Date().toISOString()}</updated>
+<openSearch:totalResults xmlns:openSearch="http://a9.com/-/spec/opensearch/1.1/">${total}</openSearch:totalResults>
 
-  <author>
-    <name>YouTube</name>
-    <uri>http://www.youtube.com/</uri>
-  </author>
-
-  <openSearch:totalResults>${total}</openSearch:totalResults>
-  <openSearch:startIndex>${startIndex}</openSearch:startIndex>
-  <openSearch:itemsPerPage>${maxResults}</openSearch:itemsPerPage>
-
-  ${page.map(entryToXML).join("\n")}
+${page.map(entryXML).join("")}
 
 </feed>`;
     }
 
     const videos = await loadVideos();
 
-    // ✅ SINGLE VIDEO (FIXED)
-    if (route[0] === "videos" && route[1] && route.length === 2) {
+    // ✅ related
+    if (route[0] === "videos" && route[2] === "related") {
       const id = route[1];
-      const video = videos.find(v => getId(v) === id);
+      const base = videos.find(v => getId(v) === id);
+      if (!base) return new Response("Not Found", { status: 404 });
 
-      if (!video) {
-        return new Response("Not Found", { status: 404 });
+      let related = videos.filter(v => getId(v) !== id);
+
+      const cat = getCategory(base);
+      if (cat) {
+        related = related.filter(v => getCategory(v) === cat);
       }
 
-      if (alt === "json") {
+      const page = paginate(filter(related));
+
+      return alt === "json"
+        ? respondJSON(buildFeed(page, related.length, "Related"))
+        : new Response(buildXML(page, related.length, "Related"), {
+            headers: { "content-type": "application/xml" }
+          });
+    }
+
+    // ✅ single video
+    if (route[0] === "videos" && route[1]) {
+      const id = route[1];
+      const v = videos.find(x => getId(x) === id);
+      if (!v) return new Response("Not Found", { status: 404 });
+
+      return alt === "json"
+        ? respondJSON({ entry: v })
+        : new Response(entryXML(v), {
+            headers: { "content-type": "application/xml" }
+          });
+    }
+
+    // ✅ standardfeeds
+    if (route[0] === "standardfeeds") {
+      const id = route[1];
+
+      if (!id) {
         return respondJSON({
-          version: "1.0",
-          encoding: "UTF-8",
-          entry: video
+          sets: Object.entries(STANDARD_FEEDS).map(([k, t]) => ({
+            title: t,
+            gdata_list_id: k,
+            gdata_url: `${url.origin}/feeds/api/videos`
+          }))
         });
       }
 
-      const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<entry xmlns="http://www.w3.org/2005/Atom"
- xmlns:media="http://search.yahoo.com/mrss/"
- xmlns:yt="http://gdata.youtube.com/schemas/2007">
+      let list = videos;
+      const mapped = STANDARD_FEEDS[id];
 
-  <id>${id}</id>
-  <published>${video.published || ""}</published>
-  <updated>${video.updated || ""}</updated>
-  <title>${escapeXML(getTitle(video))}</title>
-  <content type="text">${escapeXML(getDescription(video))}</content>
-
-  <author>
-    <name>${escapeXML(getAuthor(video))}</name>
-  </author>
-
-  <media:group>
-    <media:title>${escapeXML(getTitle(video))}</media:title>
-    <media:description>${escapeXML(getDescription(video))}</media:description>
-    <media:content url="${getVideoURL(video)}" type="video/mp4"/>
-    <yt:videoid>${id}</yt:videoid>
-  </media:group>
-
-</entry>`;
-
-      return new Response(xml, {
-        headers: { "content-type": "application/xml" }
-      });
-    }
-
-    // ✅ USER UPLOADS (FIXED)
-    if (route[0] === "users" && route[2] === "uploads") {
-      const user = decodeURIComponent(route[1]).toLowerCase();
-
-      const list = videos.filter(v =>
-        getAuthor(v).toLowerCase() === user
-      );
-
-      const page = paginate(list);
-
-      if (alt === "json") {
-        return respondJSON(buildFeed(page, list.length, `${route[1]} uploads`));
+      if (mapped && mapped !== "Most Popular") {
+        list = videos.filter(v => getCategory(v) === mapped);
       }
 
-      return new Response(
-        buildXML(page, list.length, `${route[1]} uploads`),
-        { headers: { "content-type": "application/xml" } }
-      );
+      const page = paginate(filter(list));
+
+      return alt === "json"
+        ? respondJSON(buildFeed(page, list.length, mapped || "Most Popular"))
+        : new Response(buildXML(page, list.length, mapped || "Most Popular"), {
+            headers: { "content-type": "application/xml" }
+          });
     }
 
-    // ✅ VIDEO LIST
+    // ✅ uploads
+    if (route[0] === "users" && route[2] === "uploads") {
+      const user = route[1].toLowerCase();
+      const list = videos.filter(v => getAuthor(v).toLowerCase() === user);
+      const page = paginate(list);
+
+      return alt === "json"
+        ? respondJSON(buildFeed(page, list.length, `${user} uploads`))
+        : new Response(buildXML(page, list.length, `${user} uploads`), {
+            headers: { "content-type": "application/xml" }
+          });
+    }
+
+    // ✅ video list
     if (route[0] === "videos") {
       const list = filter(videos);
       const page = paginate(list);
 
-      if (alt === "json") {
-        return respondJSON(buildFeed(page, list.length, "Videos", "YouTube feed"));
-      }
-
-      return new Response(
-        buildXML(page, list.length, "Videos", "YouTube feed"),
-        { headers: { "content-type": "application/xml" } }
-      );
+      return alt === "json"
+        ? respondJSON(buildFeed(page, list.length, "Videos"))
+        : new Response(buildXML(page, list.length, "Videos"), {
+            headers: { "content-type": "application/xml" }
+          });
     }
 
     return new Response("Not Found", { status: 404 });
