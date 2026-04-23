@@ -22,6 +22,8 @@ export async function onRequest(context) {
 
     async function loadVideos() {
       const res = await fetch(FEED_URL, { cf: { cacheTtl: 60 } });
+      if (!res.ok) throw new Error("Failed to fetch feed");
+
       const text = await res.text();
       const data = JSON.parse(text);
 
@@ -36,7 +38,10 @@ export async function onRequest(context) {
     }
 
     function getTitle(v) {
-      return typeof v.title === "string" ? v.title : v?.title?.$t || "";
+      if (typeof v.title === "string") return v.title;
+      if (typeof v?.title?.$t === "string") return v.title.$t;
+      if (typeof v?.title?.$t === "object") return v.title.$t?.$t || "";
+      return "";
     }
 
     function getDescription(v) {
@@ -57,6 +62,10 @@ export async function onRequest(context) {
       }
 
       return "unknown";
+    }
+
+    function getVideoURL(v) {
+      return v?.media$group?.["media$content"]?.[0]?.url || "";
     }
 
     function filter(list) {
@@ -114,7 +123,7 @@ export async function onRequest(context) {
       const title = escapeXML(getTitle(v));
       const desc = escapeXML(getDescription(v));
       const author = escapeXML(getAuthor(v));
-      const videoUrl = v?.media$group?.["media$content"]?.[0]?.url || "";
+      const videoUrl = getVideoURL(v);
 
       return `
 <entry>
@@ -162,6 +171,53 @@ export async function onRequest(context) {
 
     const videos = await loadVideos();
 
+    // ✅ SINGLE VIDEO (FIXED)
+    if (route[0] === "videos" && route[1] && route.length === 2) {
+      const id = route[1];
+      const video = videos.find(v => getId(v) === id);
+
+      if (!video) {
+        return new Response("Not Found", { status: 404 });
+      }
+
+      if (alt === "json") {
+        return respondJSON({
+          version: "1.0",
+          encoding: "UTF-8",
+          entry: video
+        });
+      }
+
+      const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<entry xmlns="http://www.w3.org/2005/Atom"
+ xmlns:media="http://search.yahoo.com/mrss/"
+ xmlns:yt="http://gdata.youtube.com/schemas/2007">
+
+  <id>${id}</id>
+  <published>${video.published || ""}</published>
+  <updated>${video.updated || ""}</updated>
+  <title>${escapeXML(getTitle(video))}</title>
+  <content type="text">${escapeXML(getDescription(video))}</content>
+
+  <author>
+    <name>${escapeXML(getAuthor(video))}</name>
+  </author>
+
+  <media:group>
+    <media:title>${escapeXML(getTitle(video))}</media:title>
+    <media:description>${escapeXML(getDescription(video))}</media:description>
+    <media:content url="${getVideoURL(video)}" type="video/mp4"/>
+    <yt:videoid>${id}</yt:videoid>
+  </media:group>
+
+</entry>`;
+
+      return new Response(xml, {
+        headers: { "content-type": "application/xml" }
+      });
+    }
+
+    // ✅ USER UPLOADS (FIXED)
     if (route[0] === "users" && route[2] === "uploads") {
       const user = decodeURIComponent(route[1]).toLowerCase();
 
@@ -181,17 +237,22 @@ export async function onRequest(context) {
       );
     }
 
-    let list = filter(videos);
-    let page = paginate(list);
+    // ✅ VIDEO LIST
+    if (route[0] === "videos") {
+      const list = filter(videos);
+      const page = paginate(list);
 
-    if (alt === "json") {
-      return respondJSON(buildFeed(page, list.length, "Videos", "YouTube feed"));
+      if (alt === "json") {
+        return respondJSON(buildFeed(page, list.length, "Videos", "YouTube feed"));
+      }
+
+      return new Response(
+        buildXML(page, list.length, "Videos", "YouTube feed"),
+        { headers: { "content-type": "application/xml" } }
+      );
     }
 
-    return new Response(
-      buildXML(page, list.length, "Videos", "YouTube feed"),
-      { headers: { "content-type": "application/xml" } }
-    );
+    return new Response("Not Found", { status: 404 });
 
   } catch (e) {
     return new Response(e.stack || String(e), {
