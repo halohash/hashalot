@@ -16,16 +16,16 @@ export async function onRequest(context) {
   let selected;
   let requestedId;
 
-  if (type === "profile" | type === 1) {
-    requestedId = url.searchParams.get("v"); // profile id
-    selected = profiles.find(v => p.id === requestedId) 
-            || profiles.find(v => p.id === "default");
-  } else {
-    // default to video thumbnails
-    requestedId = url.searchParams.get("v");
-    selected = videos.find(v => v.id === requestedId) 
-            || videos.find(v => v.id === "unavailable");
-  }
+if (type === "profile" || type === "1") {
+  requestedId = url.searchParams.get("p"); // use "p" for profiles
+  selected = profiles.find(p => p.id === requestedId) 
+          || profiles.find(p => p.id === "default");
+} else {
+  // default to video thumbnails
+  requestedId = url.searchParams.get("v");
+  selected = videos.find(v => v.id === requestedId) 
+          || videos.find(v => v.id === "unavailable");
+}
 
   return Response.redirect(selected.url, 302);
 }
