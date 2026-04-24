@@ -5,14 +5,16 @@ export async function onRequest(context) {
 
   const videos = [
     { id: "unavailable", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/placeholder.png" },
-    { id: "adminperms", url: "https://file.garden/aUYIWVAKvQxCBY-_/database/collabvm-archive/vm6.PNG" }
+    { id: "adminperms", url: "https://file.garden/aUYIWVAKvQxCBY-_/database/collabvm-archive/vm6.PNG" },
+    { id: "plastics", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/b237ff12.png"}
   ];
 
   const profiles = [
     { id: "default", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/profiles/defaults/youtube%20blue%20curly%20guy.png" },
     { id: "KmauG4Z", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/profiles/KmauG4Z.png" },
     { id:"Y30JRSgfhYXA6i6xX1erWg", url:"https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/profiles/smosh.jpg"},
-    { id:"DeveloperAccess", url:"https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/profiles/developeraccount.jpg"}
+    { id:"DeveloperAccess", url:"https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/profiles/developeraccount.jpg"},
+    { id:"4dOFHrcqbhrf9yrNUN13cw", url:"https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/profiles/default.jpg"}
   ];
 
   let selected;
