@@ -1,0 +1,31 @@
+export async function onRequest(context) {
+  const url = new URL(context.request.url);
+
+  const type = url.searchParams.get("t"); // "video" or "profile"
+
+  const videos = [
+    { id: "unavailable", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/placeholder.png" },
+    { id: "adminperms", url: "https://file.garden/aUYIWVAKvQxCBY-_/database/collabvm-archive/vm6.PNG" }
+  ];
+
+  const profiles = [
+    { id: "default", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/profiles/default.png" },
+    { id: "KmauG4Z", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/profiles/KmauG4Z.png" }
+  ];
+
+  let selected;
+  let requestedId;
+
+  if (type === "profile" | type === 1) {
+    requestedId = url.searchParams.get("v"); // profile id
+    selected = profiles.find(v => p.id === requestedId) 
+            || profiles.find(v => p.id === "default");
+  } else {
+    // default to video thumbnails
+    requestedId = url.searchParams.get("v");
+    selected = videos.find(v => v.id === requestedId) 
+            || videos.find(v => v.id === "unavailable");
+  }
+
+  return Response.redirect(selected.url, 302);
+}
