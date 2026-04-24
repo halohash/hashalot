@@ -1,3 +1,10 @@
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Max-Age": "86400"
+}
+
 export async function onRequest(context) {
   const { request } = context
   const method = request.method.toUpperCase()
@@ -5,11 +12,7 @@ export async function onRequest(context) {
   if (method === "OPTIONS") {
     return new Response(null, {
       status: 204,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type"
-      }
+      headers: CORS_HEADERS
     })
   }
 
@@ -30,7 +33,9 @@ export async function onRequest(context) {
 
   async function fetchFeed(endpoint) {
     try {
-      const res = await fetch(`https://tv36.pages.dev/feeds/api/${endpoint}`)
+      const res = await fetch(`https://tv36.pages.dev/feeds/api/${endpoint}`, {
+        headers: { "Accept": "application/json" }
+      })
       if (!res.ok) return null
       return await res.json()
     } catch {
@@ -67,7 +72,7 @@ export async function onRequest(context) {
   }
 
   function mapSingleVideo(entry) {
-    if (!entry) return null
+    if (!entry) return { error: { message: "Video not found" } }
     return {
       videoDetails: {
         videoId: entry.id?.$t?.split(":").pop() || "",
@@ -81,7 +86,7 @@ export async function onRequest(context) {
     }
   }
 
-  let response
+  let response = { error: { message: "Unknown browseId" } }
 
   if (browseId === "home") {
     const data = await fetchFeed("videos")
@@ -171,18 +176,11 @@ export async function onRequest(context) {
     response = mapSingleVideo(data?.entry)
   }
 
-  else {
-    response = {
-      error: {
-        message: "Unknown browseId"
-      }
-    }
-  }
-
   return new Response(JSON.stringify(response), {
+    status: 200,
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*"
+      ...CORS_HEADERS
     }
   })
 }
