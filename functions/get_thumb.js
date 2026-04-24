@@ -6,7 +6,7 @@ export async function onRequest(context) {
   const videos = [
     { id: "unavailable", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/placeholder.png" },
     { id: "adminperms", url: "https://file.garden/aUYIWVAKvQxCBY-_/database/collabvm-archive/vm6.PNG" },
-    { id: "plastics", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/b237ff12.png"}
+    { id: "plastic", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/b237ff12.png"}
   ];
 
   const profiles = [

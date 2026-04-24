@@ -2,6 +2,7 @@ export async function onRequest(context) {
   const url = new URL(context.request.url);
 
   const userAgent = context.request.headers.get("user-agent") || "";
+  const ip = request.headers.get("CF-Connecting-IP");
 
   const blacklist = [
     "curl",
@@ -14,12 +15,16 @@ export async function onRequest(context) {
     "crawler",
     "spider"
   ];
+  const ipblacklist = [
+    "1.1.1.1","185.65.133.126"
+  ];
 
   const isBlocked = blacklist.some(entry =>
     userAgent.toLowerCase().includes(entry)
   );
+  const isHarmfulIpBlocked = ipblacklist.some(entry => ip === entry);
 
-  if (isBlocked) {
+  if (isBlocked || isHarmfulIpBlocked) {
     return Response.redirect(
       "https://file.garden/aUYIWVAKvQxCBY-_/reverendvideos/developers/unsupported.mp4",
       302
@@ -33,7 +38,8 @@ export async function onRequest(context) {
     { id: "CtJLWVyWbYo", url: "https://archive.org/download/PatronL/Vamos%20a%20celebrar%20con%20Animal%20Crossing%20Parte%209%20-%20Snow%20Day%20%28480p_30fps_H264-128kbit_AAC%29.mp4"},
     { id: "adminperms", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendvideos/SmashBrawl67/Screen%20recording%202026-04-23%208.31.07%20PM.webm"},
     { id: "Kalderz", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendvideos/SmashBrawl67/direct_url.mp4"},
-    { id: "plastic", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendvideos/developers/boll.mp4"}
+    { id: "plastic", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendvideos/developers/boll.mp4"},
+    { id: "U7QyqBBbabg", url: "https://haus.webchnl.com/memfs/e95f15af-aaa6-4334-873b-db0044789c8e.m3u8"}
   ];
 
   const defaultId = "unavailable";
