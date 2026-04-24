@@ -233,16 +233,17 @@ export async function onRequest(context) {
     }
 
     let response = null
+    
 
     if (browseId === "home") {
+      const smashbrawl = await fetchFeed("users/SmashBrawl67/uploads")
       const videos = await fetchFeed("videos")
       const trending = await fetchFeed("standardfeeds/most_popular")
-      const users = await fetchFeed("users")
 
       response = buildBrowse([
         shelf("Recommended", mapVideos(safeEntries(videos))),
         shelf("Trending", mapVideos(safeEntries(trending))),
-        shelf("Featured Channels", mapChannels(safeEntries(users)))
+        shelf("SmashBrawl67 - Topic", mapVideos(safeEntries(smashbrawl)))
       ])
     }
 
@@ -254,8 +255,9 @@ export async function onRequest(context) {
     }
 
     else if (browseId === "my") {
+      const smashbrawl = await fetchFeed("users/SmashBrawl67/uploads")
       response = buildBrowse([
-        shelf("My YouTube", [])
+        shelf("My YouTube", mapVideos(safeEntries(smashbrawl)))
       ])
     }
 
@@ -275,7 +277,7 @@ export async function onRequest(context) {
 
     else if (browseId.startsWith("channel_")) {
       const channelId = browseId.replace("channel_", "")
-      const data = await fetchFeed(`channels/${channelId}/uploads`)
+      const data = await fetchFeed(`users/${channelId}/uploads`)
 
       response = {
         header: {
