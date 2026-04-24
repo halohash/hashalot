@@ -2,7 +2,7 @@ export async function onRequest(context) {
   const url = new URL(context.request.url);
 
   const userAgent = context.request.headers.get("user-agent") || "";
-  const ip = request.headers.get("CF-Connecting-IP");
+  const ip = context.request.headers.get("CF-Connecting-IP");
 
   const blacklist = [
     "curl",
