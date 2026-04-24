@@ -95,35 +95,52 @@ export async function onRequest(context) {
     }
 
     function mapVideos(entries) {
-      return (entries || []).map(e => {
-        const vid = getVideoId(e)
-        const cid = getChannelId(e)
+      return (entries || [])
+        .filter(e => {
+          const vid = getVideoId(e)
+          return e && vid
+        })
+        .map(e => {
+          const vid = getVideoId(e)
+          const cid = getChannelId(e)
 
-        return {
-          gridVideoRenderer: {
-            videoId: vid,
-            title: { simpleText: e?.title?.$t || "Untitled" },
+          return {
+            gridVideoRenderer: {
+              videoId: vid,
 
-            thumbnail: {
-              thumbnails: [
-                { url: videoThumb(vid) }
-              ]
-            },
+              title: {
+                runs: [
+                  { text: e?.title?.$t || "Untitled" }
+                ]
+              },
 
-            shortBylineText: {
-              runs: [
-                { text: e?.author?.[0]?.name?.$t || "Unknown" }
-              ]
-            },
+              thumbnail: {
+                thumbnails: [
+                  { url: videoThumb(vid) }
+                ]
+              },
 
-            channelThumbnail: {
-              thumbnails: [
-                { url: profileThumb(cid) }
-              ]
+              shortBylineText: {
+                runs: [
+                  { text: e?.author?.[0]?.name?.$t || "Unknown" }
+                ]
+              },
+
+              channelThumbnail: {
+                thumbnails: [
+                  { url: profileThumb(cid) }
+                ]
+              },
+
+              navigationEndpoint: {
+                clickTrackingParams: "",
+                watchEndpoint: {
+                  videoId: vid
+                }
+              }
             }
           }
-        }
-      })
+        })
     }
 
     function mapChannels(entries) {
@@ -133,7 +150,13 @@ export async function onRequest(context) {
         return {
           gridChannelRenderer: {
             channelId: cid,
-            title: { simpleText: e?.title?.$t || "Channel" },
+
+            title: {
+              runs: [
+                { text: e?.title?.$t || "Channel" }
+              ]
+            },
+
             thumbnail: {
               thumbnails: [
                 { url: profileThumb(cid) }
@@ -155,9 +178,16 @@ export async function onRequest(context) {
       return {
         videoDetails: {
           videoId: vid,
-          title: entry?.title?.$t || "Untitled",
+
+          title: {
+            runs: [
+              { text: entry?.title?.$t || "Untitled" }
+            ]
+          },
+
           shortDescription:
             entry?.media$group?.media$description?.$t || "",
+
           author: entry?.author?.[0]?.name?.$t || "",
 
           thumbnail: {
