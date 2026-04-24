@@ -134,7 +134,6 @@ export async function onRequest(context) {
           gridChannelRenderer: {
             channelId: cid,
             title: { simpleText: e?.title?.$t || "Channel" },
-
             thumbnail: {
               thumbnails: [
                 { url: profileThumb(cid) }
@@ -176,15 +175,28 @@ export async function onRequest(context) {
       }
     }
 
-    function buildGrid(items) {
+    function shelf(title, items) {
+      return {
+        shelfRenderer: {
+          title: { simpleText: title },
+          content: {
+            horizontalListRenderer: {
+              items
+            }
+          }
+        }
+      }
+    }
+
+    function buildBrowse(shelves) {
       return {
         contents: {
           tvBrowseRenderer: {
             content: {
               tvSurfaceContentRenderer: {
                 content: {
-                  gridRenderer: {
-                    items
+                  sectionListRenderer: {
+                    contents: shelves
                   }
                 }
               }
@@ -197,27 +209,43 @@ export async function onRequest(context) {
     let response = null
 
     if (browseId === "home") {
-      const data = await fetchFeed("videos")
-      response = buildGrid(mapVideos(safeEntries(data)))
+      const videos = await fetchFeed("videos")
+      const trending = await fetchFeed("standardfeeds/trending")
+
+      response = buildBrowse([
+        shelf("Recommended", mapVideos(safeEntries(videos))),
+        shelf("Trending", mapVideos(safeEntries(trending)))
+      ])
     }
 
     else if (browseId === "subscriptions") {
       const data = await fetchFeed("videos")
-      response = buildGrid(mapVideos(safeEntries(data)))
+
+      response = buildBrowse([
+        shelf("Subscriptions", mapVideos(safeEntries(data)))
+      ])
     }
 
     else if (browseId === "my") {
-      response = buildGrid([])
+      response = buildBrowse([
+        shelf("My YouTube", [])
+      ])
     }
 
     else if (browseId === "trending") {
       const data = await fetchFeed("standardfeeds/trending")
-      response = buildGrid(mapVideos(safeEntries(data)))
+
+      response = buildBrowse([
+        shelf("Trending", mapVideos(safeEntries(data)))
+      ])
     }
 
     else if (browseId === "channels") {
       const data = await fetchFeed("channels")
-      response = buildGrid(mapChannels(safeEntries(data)))
+
+      response = buildBrowse([
+        shelf("Channels", mapChannels(safeEntries(data)))
+      ])
     }
 
     else if (browseId.startsWith("channel_")) {
@@ -230,7 +258,9 @@ export async function onRequest(context) {
             title: `Channel ${channelId}`
           }
         },
-        ...buildGrid(mapVideos(safeEntries(data)))
+        ...buildBrowse([
+          shelf("Uploads", mapVideos(safeEntries(data)))
+        ])
       }
     }
 
@@ -242,7 +272,9 @@ export async function onRequest(context) {
 
     if (!response) {
       const data = await fetchFeed("videos")
-      response = buildGrid(mapVideos(safeEntries(data)))
+      response = buildBrowse([
+        shelf("Recommended", mapVideos(safeEntries(data)))
+      ])
     }
 
     return new Response(JSON.stringify(response), {
