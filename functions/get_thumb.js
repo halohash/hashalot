@@ -9,7 +9,7 @@ export async function onRequest(context) {
   ];
 
   const profiles = [
-    { id: "default", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/profiles/default.png" },
+    { id: "default", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/profiles/defaults/youtube%20blue%20curly%20guy.png" },
     { id: "KmauG4Z", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/profiles/KmauG4Z.png" }
   ];
 
