@@ -9,6 +9,19 @@ function buildCORS(request) {
   }
 }
 
+function normalizeBrowseId(id) {
+  switch (id) {
+    case "FEhome":
+      return "home"
+    case "FEsubscriptions":
+      return "subscriptions"
+    case "FEmy_youtube":
+      return "my"
+    default:
+      return id
+  }
+}
+
 export async function onRequest(context) {
   const { request } = context
 
@@ -33,10 +46,13 @@ export async function onRequest(context) {
     }
 
     const url = new URL(request.url)
-    const browseId =
+
+    const rawBrowseId =
       body.browseId ||
       url.searchParams.get("browseId") ||
       "home"
+
+    const browseId = normalizeBrowseId(rawBrowseId)
 
     async function fetchFeed(endpoint) {
       try {
@@ -160,18 +176,15 @@ export async function onRequest(context) {
       }
     }
 
-    let response = { error: { message: "Unknown browseId" } }
-
-    if (browseId === "home") {
-      const data = await fetchFeed("videos")
-      response = {
+    function buildGrid(items) {
+      return {
         contents: {
           tvBrowseRenderer: {
             content: {
               tvSurfaceContentRenderer: {
                 content: {
                   gridRenderer: {
-                    items: mapVideos(safeEntries(data))
+                    items
                   }
                 }
               }
@@ -179,44 +192,32 @@ export async function onRequest(context) {
           }
         }
       }
+    }
+
+    let response = null
+
+    if (browseId === "home") {
+      const data = await fetchFeed("videos")
+      response = buildGrid(mapVideos(safeEntries(data)))
+    }
+
+    else if (browseId === "subscriptions") {
+      const data = await fetchFeed("videos")
+      response = buildGrid(mapVideos(safeEntries(data)))
+    }
+
+    else if (browseId === "my") {
+      response = buildGrid([])
     }
 
     else if (browseId === "trending") {
       const data = await fetchFeed("standardfeeds/trending")
-      response = {
-        contents: {
-          tvBrowseRenderer: {
-            content: {
-              tvSurfaceContentRenderer: {
-                content: {
-                  gridRenderer: {
-                    items: mapVideos(safeEntries(data))
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+      response = buildGrid(mapVideos(safeEntries(data)))
     }
 
     else if (browseId === "channels") {
       const data = await fetchFeed("channels")
-      response = {
-        contents: {
-          tvBrowseRenderer: {
-            content: {
-              tvSurfaceContentRenderer: {
-                content: {
-                  gridRenderer: {
-                    items: mapChannels(safeEntries(data))
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+      response = buildGrid(mapChannels(safeEntries(data)))
     }
 
     else if (browseId.startsWith("channel_")) {
@@ -229,19 +230,7 @@ export async function onRequest(context) {
             title: `Channel ${channelId}`
           }
         },
-        contents: {
-          tvBrowseRenderer: {
-            content: {
-              tvSurfaceContentRenderer: {
-                content: {
-                  gridRenderer: {
-                    items: mapVideos(safeEntries(data))
-                  }
-                }
-              }
-            }
-          }
-        }
+        ...buildGrid(mapVideos(safeEntries(data)))
       }
     }
 
@@ -249,6 +238,11 @@ export async function onRequest(context) {
       const videoId = browseId.replace("video_", "")
       const data = await fetchFeed(`videos/${videoId}`)
       response = mapSingleVideo(data?.entry)
+    }
+
+    if (!response) {
+      const data = await fetchFeed("videos")
+      response = buildGrid(mapVideos(safeEntries(data)))
     }
 
     return new Response(JSON.stringify(response), {
