@@ -17,20 +17,7 @@ function setCookie(name, value, days = 365) {
   const expires = new Date(Date.now() + days * 864e5).toUTCString();
   document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
 }
-var model = getCookie("cmodel") || "desktop";
-document.addEventListener("keydown", (event) => {
-  if (event.altKey && event.key.toLowerCase() === "m") {
-    event.preventDefault();
 
-    const currentValue = getCookie("cmodel") || "";
-    const newValue = prompt("Edit cmodel cookie:", currentValue);
-
-    if (newValue !== null) {
-      setCookie("cmodel", newValue);
-      alert("cmodel updated!");
-    }
-  }
-});
 
 var lang = getCookie("lang") || "*";
 document.addEventListener("keydown", (event) => {
