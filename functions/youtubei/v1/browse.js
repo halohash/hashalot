@@ -11,14 +11,10 @@ function buildCORS(request) {
 
 function normalizeBrowseId(id) {
   switch (id) {
-    case "FEhome":
-      return "home"
-    case "FEsubscriptions":
-      return "subscriptions"
-    case "FEmy_youtube":
-      return "my"
-    default:
-      return id
+    case "FEhome": return "home"
+    case "FEsubscriptions": return "subscriptions"
+    case "FEmy_youtube": return "my"
+    default: return id
   }
 }
 
@@ -26,9 +22,7 @@ export async function onRequest(context) {
   const { request } = context
 
   try {
-    const method = request.method.toUpperCase()
-
-    if (method === "OPTIONS") {
+    if (request.method === "OPTIONS") {
       return new Response(null, {
         status: 204,
         headers: buildCORS(request)
@@ -36,17 +30,16 @@ export async function onRequest(context) {
     }
 
     let body = {}
-    if (method === "POST") {
+    if (request.method === "POST") {
       try {
-        const text = await request.text()
-        body = text ? JSON.parse(text) : {}
+        const txt = await request.text()
+        body = txt ? JSON.parse(txt) : {}
       } catch {
         body = {}
       }
     }
 
     const url = new URL(request.url)
-
     const rawBrowseId =
       body.browseId ||
       url.searchParams.get("browseId") ||
@@ -57,16 +50,11 @@ export async function onRequest(context) {
     async function fetchFeed(endpoint) {
       try {
         const res = await fetch(
-          `https://tv36.pages.dev/feeds/api/${endpoint}?alt=json`,
-          { headers: { "Accept": "application/json" } }
+          `https://tv36.pages.dev/feeds/api/${endpoint}?alt=json`
         )
-
         if (!res.ok) return null
-
         const text = await res.text()
-        if (!text) return null
-
-        return JSON.parse(text)
+        return text ? JSON.parse(text) : null
       } catch {
         return null
       }
@@ -78,12 +66,13 @@ export async function onRequest(context) {
 
     function getVideoId(e) {
       return e?.media$group?.yt$videoid?.$t ||
-             e?.id?.$t?.split(":").pop() ||
-             ""
+             e?.id?.$t?.split(":").pop() || ""
     }
 
     function getChannelId(e) {
-      return e?.author?.[0]?.yt$userId?.$t || ""
+      return e?.yt$userId?.$t ||
+             e?.author?.[0]?.yt$userId?.$t ||
+             ""
     }
 
     function videoThumb(id) {
@@ -104,38 +93,70 @@ export async function onRequest(context) {
           const vid = getVideoId(e)
           const cid = getChannelId(e)
 
+          const duration =
+            parseInt(e?.media$group?.yt$duration?.seconds || 0)
+
+          const minutes = Math.floor(duration / 60)
+          const seconds = duration % 60
+          const durationText =
+            minutes + ":" + String(seconds).padStart(2, "0")
+
           return {
             gridVideoRenderer: {
               videoId: vid,
 
               title: {
-                runs: [
-                  { text: e?.title?.$t || "Untitled" }
-                ]
+                runs: [{ text: e?.title?.$t || "Untitled" }]
+              },
+
+              shortBylineText: {
+                runs: [{ text: e?.author?.[0]?.name?.$t || "Unknown" }]
+              },
+
+              publishedTimeText: {
+                runs: [{ text: e?.published?.$t || "" }]
+              },
+
+              viewCountText: {
+                runs: [{ text: "0 views" }]
+              },
+
+              lengthText: {
+                runs: [{ text: durationText }]
               },
 
               thumbnail: {
                 thumbnails: [
-                  { url: videoThumb(vid) }
-                ]
-              },
-
-              shortBylineText: {
-                runs: [
-                  { text: e?.author?.[0]?.name?.$t || "Unknown" }
+                  { url: videoThumb(vid), width: 320, height: 180 }
                 ]
               },
 
               channelThumbnail: {
                 thumbnails: [
-                  { url: profileThumb(cid) }
+                  { url: profileThumb(cid), width: 68, height: 68 }
                 ]
               },
+
+              thumbnailOverlays: [
+                {
+                  thumbnailOverlayTimeStatusRenderer: {
+                    text: {
+                      runs: [{ text: durationText }]
+                    }
+                  }
+                }
+              ],
 
               navigationEndpoint: {
                 clickTrackingParams: "",
                 watchEndpoint: {
                   videoId: vid
+                }
+              },
+
+              menu: {
+                menuRenderer: {
+                  items: []
                 }
               }
             }
@@ -144,71 +165,46 @@ export async function onRequest(context) {
     }
 
     function mapChannels(entries) {
-      return (entries || []).map(e => {
-        const cid = getChannelId(e)
+      return (entries || [])
+        .filter(e => e)
+        .map(e => {
+          const cid = getChannelId(e)
 
-        return {
-          gridChannelRenderer: {
-            channelId: cid,
+          const name =
+            e?.title?.$t ||
+            e?.author?.[0]?.name?.$t ||
+            "Channel"
 
-            title: {
-              runs: [
-                { text: e?.title?.$t || "Channel" }
-              ]
-            },
+          return {
+            gridChannelRenderer: {
+              channelId: cid,
 
-            thumbnail: {
-              thumbnails: [
-                { url: profileThumb(cid) }
-              ]
+              title: {
+                runs: [{ text: name }]
+              },
+
+              thumbnail: {
+                thumbnails: [
+                  { url: profileThumb(cid), width: 68, height: 68 }
+                ]
+              },
+
+              navigationEndpoint: {
+                browseEndpoint: {
+                  browseId: "channel_" + cid
+                }
+              }
             }
           }
-        }
-      })
-    }
-
-    function mapSingleVideo(entry) {
-      if (!entry) {
-        return { error: { message: "Video not found" } }
-      }
-
-      const vid = getVideoId(entry)
-      const cid = getChannelId(entry)
-
-      return {
-        videoDetails: {
-          videoId: vid,
-
-          title: {
-            runs: [
-              { text: entry?.title?.$t || "Untitled" }
-            ]
-          },
-
-          shortDescription:
-            entry?.media$group?.media$description?.$t || "",
-
-          author: entry?.author?.[0]?.name?.$t || "",
-
-          thumbnail: {
-            thumbnails: [
-              { url: videoThumb(vid) }
-            ]
-          },
-
-          channelThumbnail: {
-            thumbnails: [
-              { url: profileThumb(cid) }
-            ]
-          }
-        }
-      }
+        })
     }
 
     function shelf(title, items) {
       return {
         shelfRenderer: {
-          title: { simpleText: title },
+          title: {
+            runs: [{ text: title }]
+          },
           content: {
             horizontalListRenderer: {
               items
@@ -240,17 +236,18 @@ export async function onRequest(context) {
 
     if (browseId === "home") {
       const videos = await fetchFeed("videos")
-      const trending = await fetchFeed("standardfeeds/trending")
+      const trending = await fetchFeed("standardfeeds/most_popular")
+      const users = await fetchFeed("users")
 
       response = buildBrowse([
         shelf("Recommended", mapVideos(safeEntries(videos))),
-        shelf("Trending", mapVideos(safeEntries(trending)))
+        shelf("Trending", mapVideos(safeEntries(trending))),
+        shelf("Featured Channels", mapChannels(safeEntries(users)))
       ])
     }
 
     else if (browseId === "subscriptions") {
       const data = await fetchFeed("videos")
-
       response = buildBrowse([
         shelf("Subscriptions", mapVideos(safeEntries(data)))
       ])
@@ -263,16 +260,14 @@ export async function onRequest(context) {
     }
 
     else if (browseId === "trending") {
-      const data = await fetchFeed("standardfeeds/trending")
-
+      const data = await fetchFeed("standardfeeds/most_popular")
       response = buildBrowse([
         shelf("Trending", mapVideos(safeEntries(data)))
       ])
     }
 
     else if (browseId === "channels") {
-      const data = await fetchFeed("channels")
-
+      const data = await fetchFeed("users")
       response = buildBrowse([
         shelf("Channels", mapChannels(safeEntries(data)))
       ])
@@ -297,7 +292,7 @@ export async function onRequest(context) {
     else if (browseId.startsWith("video_")) {
       const videoId = browseId.replace("video_", "")
       const data = await fetchFeed(`videos/${videoId}`)
-      response = mapSingleVideo(data?.entry)
+      response = mapVideos([data?.entry])[0]
     }
 
     if (!response) {
