@@ -17,7 +17,7 @@ export async function onRequest(context) {
   let requestedId;
 
 if (type === "profile" || type === "1") {
-  requestedId = url.searchParams.get("p"); // use "p" for profiles
+  requestedId = url.searchParams.get("v"); // use "p" for profiles
   selected = profiles.find(p => p.id === requestedId) 
           || profiles.find(p => p.id === "default");
 } else {
