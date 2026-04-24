@@ -3,6 +3,49 @@
 
 <head>
     <script>
+                function getCookie(name) {
+  const cookies = document.cookie.split("; ");
+  for (const cookie of cookies) {
+    const [key, value] = cookie.split("=");
+    if (key === name) {
+      return decodeURIComponent(value);
+    }
+  }
+  return null;
+}
+function setCookie(name, value, days = 365) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+}
+var model = getCookie("cmodel") || "desktop";
+document.addEventListener("keydown", (event) => {
+  if (event.altKey && event.key.toLowerCase() === "m") {
+    event.preventDefault();
+
+    const currentValue = getCookie("cmodel") || "";
+    const newValue = prompt("Edit cmodel cookie:", currentValue);
+
+    if (newValue !== null) {
+      setCookie("cmodel", newValue);
+      alert("cmodel updated!");
+    }
+  }
+});
+
+var lang = getCookie("lang") || "*";
+document.addEventListener("keydown", (event) => {
+  if (event.altKey && event.key.toLowerCase() === "m") {
+    event.preventDefault();
+
+    const currentValue = getCookie("lang") || "*";
+    const newValue = prompt("set language:", currentValue);
+
+    if (newValue !== null) {
+      setCookie("lang", newValue);
+      alert("language updated!");
+    }
+  }
+});
         (function() {
             (function() {
                 function d(a) {
@@ -96,7 +139,7 @@
             "start_time": 1377939600,
             "experiments": [919112, 938603, 914048, 916626, 919515, 929117, 929121, 929906, 929907, 929922, 929127, 929129, 929131, 929930, 936403, 925726, 925720, 925722, 925718, 929917, 906945, 929933, 920302, 913428, 920605, 919811, 913563, 904830, 919373, 930803, 908536, 904122, 938701, 936308, 909549, 912711, 904494, 904497, 900375, 936312, 906001],
             "country": "US",
-            "language": "*",
+            "language": "lang",
             "cbrand": "NINTENDO",
             "cmodel": "wiiu",
             "cc_load_policy": 1,

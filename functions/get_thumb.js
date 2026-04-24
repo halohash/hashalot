@@ -2,6 +2,7 @@ export async function onRequest(context) {
   const url = new URL(context.request.url);
 
   const type = url.searchParams.get("t"); // "video" or "profile"
+  const dancer = "https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/profiles/dancers.gif";
 
   const videos = [
     { id: "unavailable", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/placeholder.png" },
@@ -14,7 +15,8 @@ export async function onRequest(context) {
     { id: "KmauG4Z", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/profiles/KmauG4Z.png" },
     { id:"Y30JRSgfhYXA6i6xX1erWg", url:"https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/profiles/smosh.jpg"},
     { id:"DeveloperAccess", url:"https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/profiles/developeraccount.jpg"},
-    { id:"4dOFHrcqbhrf9yrNUN13cw", url:"https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/profiles/default.jpg"}
+    { id:"4dOFHrcqbhrf9yrNUN13cw", url:"https://file.garden/aUYIWVAKvQxCBY-_/reverendthumbnails/profiles/default.jpg"},
+    { id:"x0q_TPVC472a9oKVBC_qVA", url: dancer }
   ];
 
   let selected;
