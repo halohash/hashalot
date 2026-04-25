@@ -14,26 +14,19 @@ function normalizeBrowseId(id) {
     case "FEhome":
     case "FEtopics":
       return "home"
-
     case "FEsubscriptions":
       return "subscriptions"
-
     case "FEmy_youtube":
     case "FElibrary":
       return "my"
-
     case "FEtopics_gaming":
       return "gaming"
-
     case "FEtopics_music":
       return "music"
-
     case "FEtopics_movies":
       return "movies"
-
     case "FEtopics_more":
       return "more"
-
     default:
       return id
   }
@@ -127,8 +120,7 @@ export async function onRequest(context) {
                   guideEntryRenderer: {
                     navigationEndpoint: {
                       browseEndpoint: { browseId: "FEtopics_music" }
-                    }
-                    ,
+                    },
                     formattedTitle: {
                       runs: [{ text: "Music" }]
                     }
@@ -198,6 +190,82 @@ export async function onRequest(context) {
       })
     }
 
+    if (route[0] === "watch") {
+      const url = new URL(request.url)
+      const videoId = url.searchParams.get("v")
+
+      if (!videoId) {
+        return new Response(JSON.stringify({ error: "Missing videoId" }), {
+          status: 400
+        })
+      }
+
+      const data = await fetch(`https://tv36.pages.dev/feeds/api/videos/${videoId}?alt=json`)
+      const json = await data.json()
+      const entry = json?.entry
+
+      const title = entry?.title?.$t || "Untitled"
+      const author = entry?.author?.[0]?.name?.$t || "Unknown"
+
+      const videoUrl = `https://tv36.pages.dev/channel_fh264_getvideo?v=${videoId}`
+
+      const response = {
+        contents: {
+          tvWatchNextResponse: {
+            results: {
+              results: {
+                contents: [
+                  {
+                    videoPrimaryInfoRenderer: {
+                      title: {
+                        runs: [{ text: title }]
+                      }
+                    }
+                  },
+                  {
+                    videoSecondaryInfoRenderer: {
+                      owner: {
+                        videoOwnerRenderer: {
+                          title: {
+                            runs: [{ text: author }]
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        videoDetails: {
+          videoId,
+          title,
+          author
+        },
+        streamingData: {
+          formats: [
+            {
+              itag: 18,
+              mimeType: 'video/mp4; codecs="avc1.42001E, mp4a.40.2"',
+              bitrate: 500000,
+              width: 640,
+              height: 360,
+              url: videoUrl
+            }
+          ]
+        }
+      }
+
+      return new Response(JSON.stringify(response), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          ...buildCORS(request)
+        }
+      })
+    }
+
     let body = {}
     if (request.method === "POST") {
       try {
@@ -209,7 +277,6 @@ export async function onRequest(context) {
     }
 
     const url = new URL(request.url)
-
     const routeName = route[0] || ""
 
     const rawBrowseId =
@@ -274,6 +341,7 @@ export async function onRequest(context) {
               videoId: vid,
               title: { runs: [{ text: e?.title?.$t || "Untitled" }] },
               shortBylineText: { runs: [{ text: e?.author?.[0]?.name?.$t || "Unknown" }] },
+              publishedTimeText: { runs: [{ text: e?.published?.$t || "" }] },
               viewCountText: { runs: [{ text: "0 views" }] },
               lengthText: { runs: [{ text: durationText }] },
               thumbnail: {
@@ -286,8 +354,24 @@ export async function onRequest(context) {
                   { url: profileThumb(cid), width: 68, height: 68 }
                 ]
               },
+              thumbnailOverlays: [
+                {
+                  thumbnailOverlayTimeStatusRenderer: {
+                    text: {
+                      runs: [{ text: durationText }]
+                    }
+                  }
+                }
+              ],
               navigationEndpoint: {
+                clickTrackingParams: "CAAQxjciEw==",
                 watchEndpoint: { videoId: vid }
+              },
+              menu: {
+                menuRenderer: {
+                  trackingParams: "CAAQxjciEw==",
+                  items: []
+                }
               }
             }
           }
@@ -357,7 +441,6 @@ export async function onRequest(context) {
     if (browseId === "home") {
       const videos = await fetchFeed("videos")
       const trending = await fetchFeed("standardfeeds/most_popular")
-
       response = buildBrowse([
         shelf("Recommended", mapVideos(safeEntries(videos))),
         shelf("Trending", mapVideos(safeEntries(trending)))
@@ -403,7 +486,6 @@ export async function onRequest(context) {
       const trending = await fetchFeed("standardfeeds/most_popular")
       const gaming = await fetchFeed("standardfeeds/most_popular_Games")
       const music = await fetchFeed("standardfeeds/most_popular_Music")
-
       response = buildBrowse([
         shelf("Trending", mapVideos(safeEntries(trending))),
         shelf("Gaming", mapVideos(safeEntries(gaming))),
@@ -421,7 +503,6 @@ export async function onRequest(context) {
     else if (browseId.startsWith("channel_")) {
       const channelId = browseId.replace("channel_", "")
       const data = await fetchFeed(`users/${channelId}/uploads`)
-
       response = {
         header: {
           channelHeaderRenderer: {
