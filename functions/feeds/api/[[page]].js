@@ -32,6 +32,17 @@ if (
 
   return Response.redirect(redirectURL.toString(), 302);
 }
+// playlist redirect
+if (
+  route[0] === "playlists"
+) {
+  const redirectURL = new URL("https://tv96.pages.dev/feeds/api/videos");
+
+  // preserve query params like alt, callback, etc.
+  redirectURL.search = url.search;
+
+  return Response.redirect(redirectURL.toString(), 302);
+}
 if (
   route[0] === "users" &&
   route[1] === "HaloHash" &&
