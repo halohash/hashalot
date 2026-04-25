@@ -11,39 +11,16 @@ function buildCORS(request) {
 
 function normalizeBrowseId(id) {
   switch (id) {
-    case "FEhome": return "home"
-    case "FEsubscriptions": return "subscriptions"
-    case "FEmy_youtube": return "my"
-    default: return id
-  }
-}
-
-function guideSection(items) {
-  return {
-    guideSectionRenderer: {
-      items
-    }
-  }
-}
-
-function guideItem(title, browseId, iconType) {
-  return {
-    guideEntryRenderer: {
-      title: {
-        runs: [{ text: title }]
-      },
-      formattedTitle: {
-        runs: [{ text: title }]
-      },
-      navigationEndpoint: {
-        browseEndpoint: {
-          browseId
-        }
-      },
-      icon: {
-        iconType
-      }
-    }
+    case "FEhome":
+    case "FEtopics":
+      return "home"
+    case "FEsubscriptions":
+      return "subscriptions"
+    case "FEmy_youtube":
+    case "FElibrary":
+      return "my"
+    default:
+      return id
   }
 }
 
@@ -62,25 +39,150 @@ export async function onRequest(context) {
 
     if (route[0] === "guide") {
       const response = {
-        sections: [
-          guideSection([
-            guideItem("Home", "FEhome", "TAB_HOME"),
-            guideItem("Trending", "trending", "TAB_TRENDING"),
-            guideItem("Subscriptions", "FEsubscriptions", "TAB_SUBSCRIPTIONS")
-          ]),
-          guideSection([
-            guideItem("Library", "FEmy_youtube", "TAB_LIBRARY"),
-            guideItem("History", "history", "TAB_HISTORY")
-          ]),
-          guideSection([
-            guideItem("Gaming", "gaming", "TAB_GAMING"),
-            guideItem("Music", "music", "TAB_MUSIC"),
-            guideItem("Sports", "sports", "TAB_SPORTS")
-          ]),
-          guideSection([
-            guideItem("Channels", "channels", "TAB_CHANNELS")
-          ])
-        ]
+        responseContext: {
+          visitorData: "Cgtha1l3enBGTmQ3NCixlse8BjIKCgJVUxIEGgAgZA%3D%3D",
+          serviceTrackingParams: []
+        },
+
+        items: [
+          {
+            guideSectionRenderer: {
+              items: [
+                {
+                  guideEntryRenderer: {
+                    navigationEndpoint: {
+                      signalNavigationEndpoint: {
+                        signal: "ACCOUNT_SETTINGS"
+                      }
+                    },
+                    icon: { iconType: "SIGN_IN" },
+                    formattedTitle: {
+                      runs: [{ text: "Sign in" }]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+
+          {
+            guideSectionRenderer: {
+              items: [
+                {
+                  guideEntryRenderer: {
+                    navigationEndpoint: {
+                      searchEndpoint: { query: "" }
+                    },
+                    icon: { iconType: "SEARCH" },
+                    formattedTitle: {
+                      runs: [{ text: "Search" }]
+                    }
+                  }
+                },
+
+                {
+                  guideEntryRenderer: {
+                    navigationEndpoint: {
+                      browseEndpoint: { browseId: "FEtopics" }
+                    },
+                    icon: { iconType: "WHAT_TO_WATCH" },
+                    formattedTitle: {
+                      runs: [{ text: "Home" }]
+                    }
+                  }
+                },
+
+                {
+                  guideEntryRenderer: {
+                    navigationEndpoint: {
+                      browseEndpoint: { browseId: "FEtopics_gaming" }
+                    },
+                    formattedTitle: {
+                      runs: [{ text: "Gaming" }]
+                    }
+                  }
+                },
+
+                {
+                  guideEntryRenderer: {
+                    navigationEndpoint: {
+                      browseEndpoint: { browseId: "FEtopics_movies" }
+                    },
+                    formattedTitle: {
+                      runs: [{ text: "Movies & TV" }]
+                    }
+                  }
+                },
+
+                {
+                  guideEntryRenderer: {
+                    navigationEndpoint: {
+                      browseEndpoint: { browseId: "FEtopics_music" }
+                    },
+                    formattedTitle: {
+                      runs: [{ text: "Music" }]
+                    }
+                  }
+                },
+
+                {
+                  guideEntryRenderer: {
+                    navigationEndpoint: {
+                      browseEndpoint: { browseId: "FEsubscriptions" }
+                    },
+                    icon: { iconType: "SUBSCRIPTIONS" },
+                    formattedTitle: {
+                      runs: [{ text: "Subscriptions" }]
+                    }
+                  }
+                },
+
+                {
+                  guideEntryRenderer: {
+                    navigationEndpoint: {
+                      browseEndpoint: { browseId: "FElibrary" }
+                    },
+                    icon: { iconType: "TAB_LIBRARY" },
+                    formattedTitle: {
+                      runs: [{ text: "Library" }]
+                    }
+                  }
+                },
+
+                {
+                  guideEntryRenderer: {
+                    navigationEndpoint: {
+                      browseEndpoint: {
+                        browseId: "FEtopics_more"
+                      }
+                    },
+                    formattedTitle: {
+                      runs: [{ text: "More" }]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+
+        footer: {
+          guideSectionRenderer: {
+            items: [
+              {
+                guideEntryRenderer: {
+                  navigationEndpoint: {
+                    applicationSettingsEndpoint: {}
+                  },
+                  icon: { iconType: "SETTINGS" },
+                  formattedTitle: {
+                    runs: [{ text: "Settings" }]
+                  }
+                }
+              }
+            ]
+          }
+        }
       }
 
       return new Response(JSON.stringify(response), {
@@ -116,9 +218,7 @@ export async function onRequest(context) {
 
     async function fetchFeed(endpoint) {
       try {
-        const res = await fetch(
-          `https://tv36.pages.dev/feeds/api/${endpoint}?alt=json`
-        )
+        const res = await fetch(`https://tv36.pages.dev/feeds/api/${endpoint}?alt=json`)
         if (!res.ok) return null
         const text = await res.text()
         return text ? JSON.parse(text) : null
@@ -152,40 +252,16 @@ export async function onRequest(context) {
 
     function mapVideos(entries) {
       return (entries || [])
-        .filter(e => {
-          const vid = getVideoId(e)
-          return e && vid
-        })
+        .filter(e => e && getVideoId(e))
         .map(e => {
           const vid = getVideoId(e)
           const cid = getChannelId(e)
 
-          const duration =
-            parseInt(e?.media$group?.yt$duration?.seconds || 0)
-
-          const minutes = Math.floor(duration / 60)
-          const seconds = duration % 60
-          const durationText =
-            minutes + ":" + String(seconds).padStart(2, "0")
-
           return {
             gridVideoRenderer: {
               videoId: vid,
-              title: {
-                runs: [{ text: e?.title?.$t || "Untitled" }]
-              },
-              shortBylineText: {
-                runs: [{ text: e?.author?.[0]?.name?.$t || "Unknown" }]
-              },
-              publishedTimeText: {
-                runs: [{ text: e?.published?.$t || "" }]
-              },
-              viewCountText: {
-                runs: [{ text: "0 views" }]
-              },
-              lengthText: {
-                runs: [{ text: durationText }]
-              },
+              title: { runs: [{ text: e?.title?.$t || "Untitled" }] },
+              shortBylineText: { runs: [{ text: e?.author?.[0]?.name?.$t || "Unknown" }] },
               thumbnail: {
                 thumbnails: [
                   { url: videoThumb(vid), width: 320, height: 180 }
@@ -196,56 +272,8 @@ export async function onRequest(context) {
                   { url: profileThumb(cid), width: 68, height: 68 }
                 ]
               },
-              thumbnailOverlays: [
-                {
-                  thumbnailOverlayTimeStatusRenderer: {
-                    text: {
-                      runs: [{ text: durationText }]
-                    }
-                  }
-                }
-              ],
               navigationEndpoint: {
-                watchEndpoint: {
-                  videoId: vid
-                }
-              },
-              menu: {
-                menuRenderer: {
-                  items: []
-                }
-              }
-            }
-          }
-        })
-    }
-
-    function mapChannels(entries) {
-      return (entries || [])
-        .filter(e => e)
-        .map(e => {
-          const cid = getChannelId(e)
-
-          const name =
-            e?.title?.$t ||
-            e?.author?.[0]?.name?.$t ||
-            "Channel"
-
-          return {
-            gridChannelRenderer: {
-              channelId: cid,
-              title: {
-                runs: [{ text: name }]
-              },
-              thumbnail: {
-                thumbnails: [
-                  { url: profileThumb(cid), width: 68, height: 68 }
-                ]
-              },
-              navigationEndpoint: {
-                browseEndpoint: {
-                  browseId: "channel_" + cid
-                }
+                watchEndpoint: { videoId: vid }
               }
             }
           }
@@ -255,13 +283,9 @@ export async function onRequest(context) {
     function shelf(title, items) {
       return {
         shelfRenderer: {
-          title: {
-            runs: [{ text: title }]
-          },
+          title: { runs: [{ text: title }] },
           content: {
-            horizontalListRenderer: {
-              items
-            }
+            horizontalListRenderer: { items }
           }
         }
       }
@@ -287,82 +311,17 @@ export async function onRequest(context) {
 
     let response = null
 
-    if (browseId === "home" || browseId === "default") {
-      const smashbrawl = await fetchFeed("users/SmashBrawl67/uploads")
+    if (browseId === "home") {
       const videos = await fetchFeed("videos")
-      const trending = await fetchFeed("standardfeeds/most_popular")
-      const HashDing = await fetchFeed("standardfeeds/most_popular_Games")
-      const Dripped = await fetchFeed("standardfeeds/most_popular_Music")
-      const cupped = await fetchFeed("users/HaloHash/uploads")
-
       response = buildBrowse([
-        shelf("Recommended", mapVideos(safeEntries(videos))),
-        shelf("Trending", mapVideos(safeEntries(trending))),
-        shelf("SmashBrawl67 - Topic", mapVideos(safeEntries(smashbrawl))),
-        shelf("Gaming", mapVideos(safeEntries(HashDing))),
-        shelf("Music Videos", mapVideos(safeEntries(Dripped))),
-        shelf("HaloHash - Topic", mapVideos(safeEntries(cupped)))
+        shelf("Recommended", mapVideos(safeEntries(videos)))
       ])
-    }
-
-    else if (browseId === "subscriptions") {
-      const data = await fetchFeed("videos")
-      response = buildBrowse([
-        shelf("Subscriptions", mapVideos(safeEntries(data)))
-      ])
-    }
-
-    else if (browseId === "my") {
-      const smashbrawl = await fetchFeed("users/SmashBrawl67/uploads")
-      const HashDing = await fetchFeed("standardfeeds/most_popular_Games")
-      const dipped = await fetchFeed("standardfeeds/most_popular_Music")
-      response = buildBrowse([
-        shelf("My YouTube", mapVideos(safeEntries(smashbrawl))),
-        shelf("Gaming Videos", mapVideos(safeEntries(HashDing))),
-        shelf("Music Videos", mapVideos(safeEntries(dipped))),
-      ])
-    }
-
-    else if (browseId === "trending") {
-      const data = await fetchFeed("standardfeeds/most_popular")
-      response = buildBrowse([
-        shelf("Trending", mapVideos(safeEntries(data)))
-      ])
-    }
-
-    else if (browseId === "channels") {
-      const data = await fetchFeed("users")
-      response = buildBrowse([
-        shelf("Channels", mapChannels(safeEntries(data)))
-      ])
-    }
-
-    else if (browseId.startsWith("channel_")) {
-      const channelId = browseId.replace("channel_", "")
-      const data = await fetchFeed(`users/${channelId}/uploads`)
-
-      response = {
-        header: {
-          channelHeaderRenderer: {
-            title: `Channel ${channelId}`
-          }
-        },
-        ...buildBrowse([
-          shelf("Uploads", mapVideos(safeEntries(data)))
-        ])
-      }
-    }
-
-    else if (browseId.startsWith("video_")) {
-      const videoId = browseId.replace("video_", "")
-      const data = await fetchFeed(`videos/${videoId}`)
-      response = mapVideos([data?.entry])[0]
     }
 
     if (!response) {
-      const data = await fetchFeed("videos")
+      const videos = await fetchFeed("videos")
       response = buildBrowse([
-        shelf("Recommended", mapVideos(safeEntries(data)))
+        shelf("Recommended", mapVideos(safeEntries(videos)))
       ])
     }
 
