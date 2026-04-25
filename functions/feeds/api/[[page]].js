@@ -32,6 +32,18 @@ if (
 
   return Response.redirect(redirectURL.toString(), 302);
 }
+if (
+  route[0] === "users" &&
+  route[1] === "default" &&
+  route[2] === "recommendations"
+) {
+  const redirectURL = new URL(url.origin + "/feeds/api/videos");
+
+  // preserve query params like alt, callback, etc.
+  redirectURL.search = url.search;
+
+  return Response.redirect(redirectURL.toString(), 302);
+}
 // playlist redirect
 if (
   route[0] === "playlists"
