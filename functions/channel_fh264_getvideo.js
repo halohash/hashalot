@@ -23,10 +23,17 @@ export async function onRequest(context) {
     userAgent.toLowerCase().includes(entry)
   );
   const isHarmfulIpBlocked = ipblacklist.some(entry => ip === entry);
-
+/*
   if (isBlocked || isHarmfulIpBlocked) {
     return Response.redirect(
-      "https://file.garden/aUYIWVAKvQxCBY-_/reverendvideos/developers/unsupported.mp4",
+      "https://file.garden/aUYIWVAKvQxCBY-_/reverendvideos/system/unsupported.mp4",
+      302
+    );
+  } */
+
+    if (isBlocked || isHarmfulIpBlocked) {
+    return Response.redirect(
+      "https://file.garden/aUYIWVAKvQxCBY-_/reverendvideos/system/VID_20260425_185558.mp4",
       302
     );
   }
