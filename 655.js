@@ -1590,11 +1590,12 @@ __wbg_fetch_e6e8e0a221783759: function(arg0, arg1) {
         url = url
             .replace("gdata.youtube.com", "tv36.pages.dev")
             .replace("gdata.vidtape.lol", "tv36.pages.dev");
+         .replace("www.vidtape.lol", "tv36.pages.dev");
     } else if (url instanceof Request) {
         let newUrl = url.url
             .replace("gdata.youtube.com", "tv36.pages.dev")
             .replace("gdata.vidtape.lol", "tv36.pages.dev");
-
+.replace("www.vidtape.lol", "tv36.pages.dev");
         url = new Request(newUrl, url);
     }
 
