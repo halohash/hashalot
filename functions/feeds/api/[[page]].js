@@ -32,6 +32,18 @@ if (
 
   return Response.redirect(redirectURL.toString(), 302);
 }
+if (
+  route[0] === "users" &&
+  route[1] === "HaloHash" &&
+  route[2] === "favorites"
+) {
+  const redirectURL = new URL("https://tv96.pages.dev/feeds/api/videos");
+
+  // preserve query params like alt, callback, etc.
+  redirectURL.search = url.search;
+
+  return Response.redirect(redirectURL.toString(), 302);
+}
 
     const STANDARD_FEEDS = {
       most_popular: "Most Popular",
