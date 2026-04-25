@@ -1,0 +1,240 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Metadata Editor</title>
+<style>
+  body {
+    font-family: Arial;
+    background: #f5f5f5;
+    padding: 20px;
+  }
+  input, textarea, select {
+    width: 100%;
+    margin: 10px 0;
+    padding: 8px;
+  }
+  button {
+    padding: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+  }
+  pre {
+    background: #111;
+    color: #0f0;
+    padding: 15px;
+    overflow-x: auto;
+  }
+</style>
+</head>
+<body>
+
+<h2>Video Metadata Editor</h2>
+
+<label>Video ID</label>
+<input id="videoId">
+
+<label>Title</label>
+<input id="title">
+
+<label>Category</label>
+<select id="category">
+  <option>Most Popular</option>
+  <option>Music</option>
+  <option>Gaming</option>
+  <option>Sports</option>
+  <option>Film & Animation</option>
+  <option>Entertainment</option>
+  <option>Comedy</option>
+  <option>News & Politics</option>
+  <option>People & Blogs</option>
+  <option>Science & Technology</option>
+  <option>Howto & Style</option>
+  <option>Education</option>
+  <option>Pets & Animals</option>
+</select>
+
+<label>Description</label>
+<textarea id="desc"></textarea>
+
+<label>Uploaded Date</label>
+<input type="datetime-local" id="uploaded">
+
+<button onclick="applyChanges()">Apply Changes</button>
+<button onclick="downloadJSON()">Download JSON</button>
+
+<h3>Full JSON Output</h3>
+<pre id="output"></pre>
+
+<script>
+const data = {
+  "author": {
+    "name": { "$t": "HaloHash" },
+    "uri": { "$t": "http://a-yt2009.truehosting.net:80/feeds/api/users/jawed" },
+    "yt$userId": { "$t": "hashofhalo" }
+  },
+  "category": [
+    {
+      "scheme": "http://schemas.google.com/g/2005#kind",
+      "term": "http://gdata.youtube.com/schemas/2007#video"
+    },
+    {
+      "label": "Film & Animation",
+      "scheme": "http://gdata.youtube.com/schemas/2007/categories.cat",
+      "term": "Film & Animation"
+    }
+  ],
+  "content": {
+    "src": "http://a-yt2009.truehosting.net:80/watch.swf?video_id=jNQXAC9IVRw",
+    "type": "application/x-shockwave-flash"
+  },
+  "gd$comments": {
+    "gd$feedLink": "http://a-yt2009.truehosting.net:80/feeds/api/videos/jNQXAC9IVRw/comments",
+    "rel": "http://gdata.youtube.com/schemas/2007#comments",
+    "countHint": 1
+  },
+  "id": { "$t": "tag:youtube.com,2008:video:jNQXAC9IVRw" },
+  "link": [
+    {
+      "href": "http://www.youtube.com/watch?v=jNQXAC9IVRw",
+      "rel": "alternate",
+      "type": "text/html"
+    },
+    {
+      "href": "http://a-yt2009.truehosting.net:80/feeds/api/videos/jNQXAC9IVRw",
+      "rel": "http://gdata.youtube.com/schemas/2007#video.related",
+      "type": "application/atom+xml"
+    }
+  ],
+  "media$group": {
+    "media$category": {
+      "label": "Film & Animation",
+      "scheme": "http://gdata.youtube.com/schemas/2007/categories.cat",
+      "term": "Film & Animation"
+    },
+    "media$content": [
+      {
+        "duration": 2,
+        "medium": "video",
+        "yt$format": 5,
+        "url": "http://a-yt2009.truehosting.net:80/get_video?video_id=jNQXAC9IVRw/mp4"
+      }
+    ],
+    "media$credit": [
+      {
+        "$t": "HaloHash",
+        "role": "uploader",
+        "scheme": "urn:youtube",
+        "yt$display": "HaloHash"
+      }
+    ],
+    "media$description": { "$t": "Insert Description Here" },
+    "media$keywords": {},
+    "media$license": {
+      "$t": "youtube",
+      "href": "http://www.youtube.com/t/terms",
+      "type": "text/html"
+    },
+    "media$player": {
+      "url": "http://www.youtube.com/watch?v=jNQXAC9IVRw"
+    },
+    "media$thumbnail": [
+      { "height": 90, "width": 120, "time": "00:00:00", "url": "//i.ytimg.com/vi/jNQXAC9IVRw/default.jpg" },
+      { "height": 180, "width": 320, "time": "00:00:00", "url": "//i.ytimg.com/vi/jNQXAC9IVRw/mqdefault.jpg" },
+      { "height": 360, "width": 480, "time": "00:00:00", "url": "//i.ytimg.com/vi/jNQXAC9IVRw/hqdefault.jpg" },
+      { "height": 480, "width": 360, "time": "00:00:00", "url": "//i.ytimg.com/vi/jNQXAC9IVRw/sddefault.jpg" },
+      { "height": 90, "width": 120, "time": "00:00:00", "url": "//i.ytimg.com/vi/jNQXAC9IVRw/1.jpg" },
+      { "height": 90, "width": 120, "time": "00:00:00", "url": "//i.ytimg.com/vi/jNQXAC9IVRw/2.jpg" },
+      { "height": 90, "width": 120, "time": "00:00:00", "url": "//i.ytimg.com/vi/jNQXAC9IVRw/3.jpg" }
+    ],
+    "media$title": { "$t": "Insert Title", "type": "plain" },
+    "yt$duration": { "seconds": "999" },
+    "yt$uploaded": { "$t": "2005-04-24T03:31:52Z" },
+    "yt$videoid": { "$t": "jNQXAC9IVRw" },
+    "yt$uploaderId": { "$t": "hashofhalo" }
+  },
+  "published": "2005-04-24T03:31:52Z",
+  "updated": "2005-04-24T03:31:52Z",
+  "title": { "$t": "Insert Title" },
+  "yt$hd": {}
+};
+
+function toLocal(iso) {
+  return iso.replace("Z", "");
+}
+function toISO(local) {
+  return new Date(local).toISOString();
+}
+
+function updateVideoId(id) {
+  data.id.$t = "tag:youtube.com,2008:video:" + id;
+  data.content.src = "http://a-yt2009.truehosting.net:80/watch.swf?video_id=" + id;
+  data["gd$comments"]["gd$feedLink"] = "http://a-yt2009.truehosting.net:80/feeds/api/videos/" + id + "/comments";
+  data.link[0].href = "http://www.youtube.com/watch?v=" + id;
+  data.link[1].href = "http://a-yt2009.truehosting.net:80/feeds/api/videos/" + id;
+  data["media$group"]["media$content"][0].url = "http://a-yt2009.truehosting.net:80/get_video?video_id=" + id + "/mp4";
+  data["media$group"]["media$player"].url = "http://www.youtube.com/watch?v=" + id;
+
+  const thumbs = data["media$group"]["media$thumbnail"];
+  thumbs[0].url = "//i.ytimg.com/vi/" + id + "/default.jpg";
+  thumbs[1].url = "//i.ytimg.com/vi/" + id + "/mqdefault.jpg";
+  thumbs[2].url = "//i.ytimg.com/vi/" + id + "/hqdefault.jpg";
+  thumbs[3].url = "//i.ytimg.com/vi/" + id + "/sddefault.jpg";
+  thumbs[4].url = "//i.ytimg.com/vi/" + id + "/1.jpg";
+  thumbs[5].url = "//i.ytimg.com/vi/" + id + "/2.jpg";
+  thumbs[6].url = "//i.ytimg.com/vi/" + id + "/3.jpg";
+
+  data["media$group"]["yt$videoid"].$t = id;
+}
+
+function updateCategory(cat) {
+  data.category[1].term = cat;
+  data.category[1].label = cat;
+  data["media$group"]["media$category"].term = cat;
+  data["media$group"]["media$category"].label = cat;
+}
+
+videoId.value = data["media$group"]["yt$videoid"].$t;
+title.value = data.title.$t;
+desc.value = data["media$group"]["media$description"].$t;
+uploaded.value = toLocal(data["media$group"]["yt$uploaded"].$t);
+category.value = data.category[1].term;
+
+function applyChanges() {
+  const t = title.value;
+  const d = desc.value;
+  const upISO = toISO(uploaded.value);
+  const id = videoId.value;
+  const cat = category.value;
+
+  updateVideoId(id);
+  updateCategory(cat);
+
+  data.title.$t = t;
+  data["media$group"]["media$title"].$t = t;
+  data["media$group"]["media$description"].$t = d;
+
+  data["media$group"]["yt$uploaded"].$t = upISO;
+  data.published = upISO;
+  data.updated = upISO;
+
+  output.textContent = JSON.stringify(data, null, 2);
+}
+
+function downloadJSON() {
+  const blob = new Blob(
+    [JSON.stringify(data, null, 2)],
+    { type: "application/json" }
+  );
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "video.json";
+  a.click();
+}
+
+applyChanges();
+</script>
+
+</body>
+</html>
