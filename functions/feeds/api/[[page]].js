@@ -19,6 +19,19 @@ export async function onRequest(context) {
     }
 
     const route = parts.slice(feedIndex + 2);
+    // redirect users/trends/favorites → standardfeeds/most_popular_Trending
+if (
+  route[0] === "users" &&
+  route[1] === "trends" &&
+  route[2] === "favorites"
+) {
+  const redirectURL = new URL(url.origin + "/feeds/api/standardfeeds/most_popular_Trending");
+
+  // preserve query params like alt, callback, etc.
+  redirectURL.search = url.search;
+
+  return Response.redirect(redirectURL.toString(), 302);
+}
 
     const STANDARD_FEEDS = {
       most_popular: "Most Popular",
