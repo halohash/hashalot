@@ -14,11 +14,26 @@ function normalizeBrowseId(id) {
     case "FEhome":
     case "FEtopics":
       return "home"
+
     case "FEsubscriptions":
       return "subscriptions"
+
     case "FEmy_youtube":
     case "FElibrary":
       return "my"
+
+    case "FEtopics_gaming":
+      return "gaming"
+
+    case "FEtopics_music":
+      return "music"
+
+    case "FEtopics_movies":
+      return "movies"
+
+    case "FEtopics_more":
+      return "more"
+
     default:
       return id
   }
@@ -43,7 +58,6 @@ export async function onRequest(context) {
           visitorData: "Cgtha1l3enBGTmQ3NCixlse8BjIKCgJVUxIEGgAgZA%3D%3D",
           serviceTrackingParams: []
         },
-
         items: [
           {
             guideSectionRenderer: {
@@ -64,7 +78,6 @@ export async function onRequest(context) {
               ]
             }
           },
-
           {
             guideSectionRenderer: {
               items: [
@@ -79,7 +92,6 @@ export async function onRequest(context) {
                     }
                   }
                 },
-
                 {
                   guideEntryRenderer: {
                     navigationEndpoint: {
@@ -91,7 +103,6 @@ export async function onRequest(context) {
                     }
                   }
                 },
-
                 {
                   guideEntryRenderer: {
                     navigationEndpoint: {
@@ -102,7 +113,6 @@ export async function onRequest(context) {
                     }
                   }
                 },
-
                 {
                   guideEntryRenderer: {
                     navigationEndpoint: {
@@ -113,18 +123,17 @@ export async function onRequest(context) {
                     }
                   }
                 },
-
                 {
                   guideEntryRenderer: {
                     navigationEndpoint: {
                       browseEndpoint: { browseId: "FEtopics_music" }
-                    },
+                    }
+                    ,
                     formattedTitle: {
                       runs: [{ text: "Music" }]
                     }
                   }
                 },
-
                 {
                   guideEntryRenderer: {
                     navigationEndpoint: {
@@ -136,7 +145,6 @@ export async function onRequest(context) {
                     }
                   }
                 },
-
                 {
                   guideEntryRenderer: {
                     navigationEndpoint: {
@@ -148,13 +156,10 @@ export async function onRequest(context) {
                     }
                   }
                 },
-
                 {
                   guideEntryRenderer: {
                     navigationEndpoint: {
-                      browseEndpoint: {
-                        browseId: "FEtopics_more"
-                      }
+                      browseEndpoint: { browseId: "FEtopics_more" }
                     },
                     formattedTitle: {
                       runs: [{ text: "More" }]
@@ -165,7 +170,6 @@ export async function onRequest(context) {
             }
           }
         ],
-
         footer: {
           guideSectionRenderer: {
             items: [
@@ -257,11 +261,21 @@ export async function onRequest(context) {
           const vid = getVideoId(e)
           const cid = getChannelId(e)
 
+          const duration =
+            parseInt(e?.media$group?.yt$duration?.seconds || 0)
+
+          const minutes = Math.floor(duration / 60)
+          const seconds = duration % 60
+          const durationText =
+            minutes + ":" + String(seconds).padStart(2, "0")
+
           return {
             gridVideoRenderer: {
               videoId: vid,
               title: { runs: [{ text: e?.title?.$t || "Untitled" }] },
               shortBylineText: { runs: [{ text: e?.author?.[0]?.name?.$t || "Unknown" }] },
+              viewCountText: { runs: [{ text: "0 views" }] },
+              lengthText: { runs: [{ text: durationText }] },
               thumbnail: {
                 thumbnails: [
                   { url: videoThumb(vid), width: 320, height: 180 }
@@ -274,6 +288,35 @@ export async function onRequest(context) {
               },
               navigationEndpoint: {
                 watchEndpoint: { videoId: vid }
+              }
+            }
+          }
+        })
+    }
+
+    function mapChannels(entries) {
+      return (entries || [])
+        .filter(e => e)
+        .map(e => {
+          const cid = getChannelId(e)
+          const name =
+            e?.title?.$t ||
+            e?.author?.[0]?.name?.$t ||
+            "Channel"
+
+          return {
+            gridChannelRenderer: {
+              channelId: cid,
+              title: { runs: [{ text: name }] },
+              thumbnail: {
+                thumbnails: [
+                  { url: profileThumb(cid), width: 68, height: 68 }
+                ]
+              },
+              navigationEndpoint: {
+                browseEndpoint: {
+                  browseId: "channel_" + cid
+                }
               }
             }
           }
@@ -313,9 +356,88 @@ export async function onRequest(context) {
 
     if (browseId === "home") {
       const videos = await fetchFeed("videos")
+      const trending = await fetchFeed("standardfeeds/most_popular")
+
       response = buildBrowse([
-        shelf("Recommended", mapVideos(safeEntries(videos)))
+        shelf("Recommended", mapVideos(safeEntries(videos))),
+        shelf("Trending", mapVideos(safeEntries(trending)))
       ])
+    }
+
+    else if (browseId === "subscriptions") {
+      const data = await fetchFeed("videos")
+      response = buildBrowse([
+        shelf("Subscriptions", mapVideos(safeEntries(data)))
+      ])
+    }
+
+    else if (browseId === "my") {
+      const data = await fetchFeed("videos")
+      response = buildBrowse([
+        shelf("My YouTube", mapVideos(safeEntries(data)))
+      ])
+    }
+
+    else if (browseId === "gaming") {
+      const data = await fetchFeed("standardfeeds/most_popular_Games")
+      response = buildBrowse([
+        shelf("Gaming", mapVideos(safeEntries(data)))
+      ])
+    }
+
+    else if (browseId === "music") {
+      const data = await fetchFeed("standardfeeds/most_popular_Music")
+      response = buildBrowse([
+        shelf("Music", mapVideos(safeEntries(data)))
+      ])
+    }
+
+    else if (browseId === "movies") {
+      const data = await fetchFeed("standardfeeds/most_popular_Film")
+      response = buildBrowse([
+        shelf("Movies & TV", mapVideos(safeEntries(data)))
+      ])
+    }
+
+    else if (browseId === "more") {
+      const trending = await fetchFeed("standardfeeds/most_popular")
+      const gaming = await fetchFeed("standardfeeds/most_popular_Games")
+      const music = await fetchFeed("standardfeeds/most_popular_Music")
+
+      response = buildBrowse([
+        shelf("Trending", mapVideos(safeEntries(trending))),
+        shelf("Gaming", mapVideos(safeEntries(gaming))),
+        shelf("Music", mapVideos(safeEntries(music)))
+      ])
+    }
+
+    else if (browseId === "channels") {
+      const data = await fetchFeed("users")
+      response = buildBrowse([
+        shelf("Channels", mapChannels(safeEntries(data)))
+      ])
+    }
+
+    else if (browseId.startsWith("channel_")) {
+      const channelId = browseId.replace("channel_", "")
+      const data = await fetchFeed(`users/${channelId}/uploads`)
+
+      response = {
+        header: {
+          channelHeaderRenderer: {
+            title: `Channel ${channelId}`
+          }
+        },
+        ...buildBrowse([
+          shelf("Uploads", mapVideos(safeEntries(data)))
+        ])
+      }
+    }
+
+    else if (browseId.startsWith("video_")) {
+      const videoId = browseId.replace("video_", "")
+      const data = await fetchFeed(`videos/${videoId}`)
+      response = mapVideos([data?.entry])[0]
     }
 
     if (!response) {
