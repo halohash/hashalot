@@ -33,7 +33,7 @@ export async function onRequest(context) {
 
     if (isBlocked || isHarmfulIpBlocked) {
     return Response.redirect(
-      "https://file.garden/aUYIWVAKvQxCBY-_/reverendvideos/system/VID_20260425_185558.mp4",
+      "https://file.garden/aUYIWVAKvQxCBY-_/reverendvideos/system/deathofyou.webm",
       302
     );
   }
