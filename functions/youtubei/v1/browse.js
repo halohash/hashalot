@@ -239,11 +239,17 @@ export async function onRequest(context) {
       const smashbrawl = await fetchFeed("users/SmashBrawl67/uploads")
       const videos = await fetchFeed("videos")
       const trending = await fetchFeed("standardfeeds/most_popular")
+      const HashDing = await fetchFeed("standardfeeds/most_popular_Gaming")
+      const Dripped = await fetchFeed("standardfeeds/most_popular_Music")
+      const cupped = await fetchFeed("users/HaloHash/uploads")
 
       response = buildBrowse([
         shelf("Recommended", mapVideos(safeEntries(videos))),
         shelf("Trending", mapVideos(safeEntries(trending))),
-        shelf("SmashBrawl67 - Topic", mapVideos(safeEntries(smashbrawl)))
+        shelf("SmashBrawl67 - Topic", mapVideos(safeEntries(smashbrawl))),
+        shelf("Gaming", mapVideos(safeEntries(HashDing))),
+        shelf("Music Videos", mapVideos(safeEntries(Dripped))),
+        shelf("HaloHash - Topic", mapVideos(safeEntries(cupped)))
       ])
     }
 
@@ -256,8 +262,12 @@ export async function onRequest(context) {
 
     else if (browseId === "my") {
       const smashbrawl = await fetchFeed("users/SmashBrawl67/uploads")
+      const HashDing = await fetchFeed("standardfeeds/most_popular_Gaming")
+      const dipped = await fetchFeed("standardfeeds/most_popular_Music")
       response = buildBrowse([
-        shelf("My YouTube", mapVideos(safeEntries(smashbrawl)))
+        shelf("My YouTube", mapVideos(safeEntries(smashbrawl))),
+        shelf("Gaming Videos", mapVideos(safeEntries(HashDing))),
+        shelf("Music Videos", mapVideos(safeEntries(dipped))),
       ])
     }
 
