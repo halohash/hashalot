@@ -235,11 +235,11 @@ export async function onRequest(context) {
     let response = null
     
 
-    if (browseId === "home") {
+    if (browseId === "home" || browseId === "default") {
       const smashbrawl = await fetchFeed("users/SmashBrawl67/uploads")
       const videos = await fetchFeed("videos")
       const trending = await fetchFeed("standardfeeds/most_popular")
-      const HashDing = await fetchFeed("standardfeeds/most_popular_Gaming")
+      const HashDing = await fetchFeed("standardfeeds/most_popular_Games")
       const Dripped = await fetchFeed("standardfeeds/most_popular_Music")
       const cupped = await fetchFeed("users/HaloHash/uploads")
 
@@ -262,7 +262,7 @@ export async function onRequest(context) {
 
     else if (browseId === "my") {
       const smashbrawl = await fetchFeed("users/SmashBrawl67/uploads")
-      const HashDing = await fetchFeed("standardfeeds/most_popular_Gaming")
+      const HashDing = await fetchFeed("standardfeeds/most_popular_Games")
       const dipped = await fetchFeed("standardfeeds/most_popular_Music")
       response = buildBrowse([
         shelf("My YouTube", mapVideos(safeEntries(smashbrawl))),
