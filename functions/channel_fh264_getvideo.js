@@ -13,10 +13,13 @@ export async function onRequest(context) {
     "axios",
     "bot",
     "crawler",
-    "spider"
+    "spider",
+    "Windows NT 6.3",
+    "Mozilla/5.0 (compatible; archive.org_bot; Wayback Machine Live Record; +http://archive.org/details/archive.org_bot)",
+    "Android 3","Android 2","Android 3","Android 4","Android 5","Android 6"
   ];
   const ipblacklist = [
-    "1.1.1.1","185.65.133.126"
+    "1.1.1.1","185.65.133.126","65.109.54.230","185.242.226.60","104.21.35.143"
   ];
 
   const isBlocked = blacklist.some(entry =>
