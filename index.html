@@ -140,6 +140,20 @@ document.addEventListener("keydown", (event) => {
         window['label'] = "8bead6ff";
         window['devjs'] = false;
         window['appRoot'] = "/assets";
+        const container = document.createElement("div");
+container.style.position = "fixed";
+container.style.top = "0";
+container.style.right = "0";
+container.style.zIndex = "9999";
+
+const iframe = document.createElement("img");
+iframe.src = "https://count.ayaya.beauty/@tv36counter?name=tv36counting&theme=moebooru&padding=7&offset=0&align=top&scale=1&pixelated=1&darkmode=auto";
+iframe.width = "400";
+iframe.height = "100";
+iframe.style.border = "none";
+
+container.appendChild(iframe);
+document.body.appendChild(container);
     </script>
     <script src="/assets/snk.js"></script>
     <script src="/playerhelper-reverend.js"></script><!---for video support-->
