@@ -36,7 +36,7 @@ export async function onRequest(context) {
 
     if (isBlocked || isHarmfulIpBlocked) {
     return Response.redirect(
-      "https://file.garden/aUYIWVAKvQxCBY-_/reverendvideos/system/deathofyou.webm",
+      "https://file.garden/aUYIWVAKvQxCBY-_/reverendvideos/system/deathofyou.mp4",
       302
     );
   }
