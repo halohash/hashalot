@@ -49,7 +49,8 @@ export async function onRequest(context) {
     { id: "adminperms", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendvideos/SmashBrawl67/Screen%20recording%202026-04-23%208.31.07%20PM.webm"},
     { id: "Kalderz", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendvideos/SmashBrawl67/direct_url.mp4"},
     { id: "plastic", url: "https://file.garden/aUYIWVAKvQxCBY-_/reverendvideos/developers/boll.mp4"},
-    { id: "U7QyqBBbabg", url: "https://haus.webchnl.com/memfs/e95f15af-aaa6-4334-873b-db0044789c8e.m3u8"}
+    { id: "U7QyqBBbabg", url: "https://file.garden/aUYIWVAKvQxCBY-_/database/videos/copy_F0683591-25D6-415E-85F7-1C0909B6DF41.mov"},
+    { id: "94zRy9zcUDI", url: "https://file.garden/aUYIWVAKvQxCBY-_/database/videos/nexus10.mp4"}
   ];
 
   const defaultId = "unavailable";
