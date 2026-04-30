@@ -1,4 +1,14 @@
 export async function onRequest(context) {
+  function withCORS(res) {
+    const headers = new Headers(res.headers);
+    headers.set("Access-Control-Allow-Origin", "*");
+    return new Response(res.body, {
+      status: res.status,
+      statusText: res.statusText,
+      headers
+    });
+  }
+
   try {
     const { request } = context;
     const url = new URL(request.url);
@@ -15,58 +25,34 @@ export async function onRequest(context) {
     const feedIndex = parts.indexOf("feeds");
 
     if (feedIndex === -1 || parts[feedIndex + 1] !== "api") {
-      return new Response("Not Found", { status: 404 });
+      return withCORS(new Response("Not Found", { status: 404 }));
     }
 
     const route = parts.slice(feedIndex + 2);
-    // redirect users/trends/favorites → standardfeeds/most_popular_Trending
-if (
-  route[0] === "users" &&
-  route[1] === "trends" &&
-  route[2] === "favorites"
-) {
-  const redirectURL = new URL(url.origin + "/feeds/api/standardfeeds/most_popular_Trending");
 
-  // preserve query params like alt, callback, etc.
-  redirectURL.search = url.search;
+    if (route[0] === "users" && route[1] === "trends" && route[2] === "favorites") {
+      const redirectURL = new URL(url.origin + "/feeds/api/standardfeeds/most_popular_Trending");
+      redirectURL.search = url.search;
+      return withCORS(Response.redirect(redirectURL.toString(), 302));
+    }
 
-  return Response.redirect(redirectURL.toString(), 302);
-}
-if (
-  route[0] === "users" &&
-  route[1] === "default" &&
-  route[2] === "recommendations"
-) {
-  const redirectURL = new URL(url.origin + "/feeds/api/videos");
+    if (route[0] === "users" && route[1] === "default" && route[2] === "recommendations") {
+      const redirectURL = new URL(url.origin + "/feeds/api/videos");
+      redirectURL.search = url.search;
+      return withCORS(Response.redirect(redirectURL.toString(), 302));
+    }
 
-  // preserve query params like alt, callback, etc.
-  redirectURL.search = url.search;
+    if (route[0] === "playlists") {
+      const redirectURL = new URL("https://tv96.pages.dev/feeds/api/videos");
+      redirectURL.search = url.search;
+      return withCORS(Response.redirect(redirectURL.toString(), 302));
+    }
 
-  return Response.redirect(redirectURL.toString(), 302);
-}
-// playlist redirect
-if (
-  route[0] === "playlists"
-) {
-  const redirectURL = new URL("https://tv96.pages.dev/feeds/api/videos");
-
-  // preserve query params like alt, callback, etc.
-  redirectURL.search = url.search;
-
-  return Response.redirect(redirectURL.toString(), 302);
-}
-if (
-  route[0] === "users" &&
-  route[1] === "HaloHash" &&
-  route[2] === "favorites"
-) {
-  const redirectURL = new URL("https://tv96.pages.dev/feeds/api/videos");
-
-  // preserve query params like alt, callback, etc.
-  redirectURL.search = url.search;
-
-  return Response.redirect(redirectURL.toString(), 302);
-}
+    if (route[0] === "users" && route[1] === "HaloHash" && route[2] === "favorites") {
+      const redirectURL = new URL("https://tv96.pages.dev/feeds/api/videos");
+      redirectURL.search = url.search;
+      return withCORS(Response.redirect(redirectURL.toString(), 302));
+    }
 
     const STANDARD_FEEDS = {
       most_popular: "Most Popular",
@@ -148,11 +134,11 @@ if (
     function respondJSON(data) {
       let body = JSON.stringify(data);
       if (callback) body = `${callback}(${body})`;
-      return new Response(body, {
+      return withCORS(new Response(body, {
         headers: {
           "content-type": callback ? "application/javascript" : "application/json"
         }
-      });
+      }));
     }
 
     function escapeXML(str) {
@@ -194,15 +180,14 @@ ${page.map(entryXML).join("")}
 
     const videos = await loadVideos();
 
-    // ✅ related
     if (route[0] === "videos" && route[2] === "related") {
       const id = route[1];
       const base = videos.find(v => getId(v) === id);
-      if (!base) return new Response("Not Found", { status: 404 });
+      if (!base) return withCORS(new Response("Not Found", { status: 404 }));
 
       let related = videos.filter(v => getId(v) !== id);
-
       const cat = getCategory(base);
+
       if (cat) {
         related = related.filter(v => getCategory(v) === cat);
       }
@@ -211,25 +196,23 @@ ${page.map(entryXML).join("")}
 
       return alt === "json"
         ? respondJSON(buildFeed(page, related.length, "Related"))
-        : new Response(buildXML(page, related.length, "Related"), {
+        : withCORS(new Response(buildXML(page, related.length, "Related"), {
             headers: { "content-type": "application/xml" }
-          });
+          }));
     }
 
-    // ✅ single video
     if (route[0] === "videos" && route[1]) {
       const id = route[1];
       const v = videos.find(x => getId(x) === id);
-      if (!v) return new Response("Not Found", { status: 404 });
+      if (!v) return withCORS(new Response("Not Found", { status: 404 }));
 
       return alt === "json"
         ? respondJSON({ entry: v })
-        : new Response(entryXML(v), {
+        : withCORS(new Response(entryXML(v), {
             headers: { "content-type": "application/xml" }
-          });
+          }));
     }
 
-    // ✅ standardfeeds
     if (route[0] === "standardfeeds") {
       const id = route[1];
 
@@ -254,12 +237,11 @@ ${page.map(entryXML).join("")}
 
       return alt === "json"
         ? respondJSON(buildFeed(page, list.length, mapped || "Most Popular"))
-        : new Response(buildXML(page, list.length, mapped || "Most Popular"), {
+        : withCORS(new Response(buildXML(page, list.length, mapped || "Most Popular"), {
             headers: { "content-type": "application/xml" }
-          });
+          }));
     }
 
-    // ✅ uploads
     if (route[0] === "users" && route[2] === "uploads") {
       const user = route[1].toLowerCase();
       const list = videos.filter(v => getAuthor(v).toLowerCase() === user);
@@ -267,30 +249,28 @@ ${page.map(entryXML).join("")}
 
       return alt === "json"
         ? respondJSON(buildFeed(page, list.length, `${user} uploads`))
-        : new Response(buildXML(page, list.length, `${user} uploads`), {
+        : withCORS(new Response(buildXML(page, list.length, `${user} uploads`), {
             headers: { "content-type": "application/xml" }
-          });
+          }));
     }
 
-
-    // ✅ video list
     if (route[0] === "videos") {
       const list = filter(videos);
       const page = paginate(list);
 
       return alt === "json"
         ? respondJSON(buildFeed(page, list.length, "Videos"))
-        : new Response(buildXML(page, list.length, "Videos"), {
+        : withCORS(new Response(buildXML(page, list.length, "Videos"), {
             headers: { "content-type": "application/xml" }
-          });
+          }));
     }
 
-    return new Response("Not Found", { status: 404 });
+    return withCORS(new Response("Not Found", { status: 404 }));
 
   } catch (e) {
-    return new Response(e.stack || String(e), {
+    return withCORS(new Response(e.stack || String(e), {
       status: 500,
       headers: { "content-type": "text/plain" }
-    });
+    }));
   }
 }
